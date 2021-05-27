@@ -1,5 +1,5 @@
 {
-  "name": "learn-starter",
+  "name": "fusa-web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -8,8 +8,21 @@
     "start": "next start"
   },
   "dependencies": {
+    "@zeit/next-sass": "^1.0.1",
+    "@fortawesome/fontawesome-svg-core": "^1.2.18",
+    "@fortawesome/free-solid-svg-icons": "^5.8.2",
+    "@fortawesome/react-fontawesome": "^0.1.4",
+    "leaflet": "^1.7.1",
+    "leaflet-defaulticon-compatibility": "^0.1.1",
+    "leaflet-geosearch": "^3.3.2",
     "next": "^10.0.0",
-    "react": "17.0.1",
-    "react-dom": "17.0.1"
+    "node-sass": "^6.0.0",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "react-leaflet": "^3.2.0"
+  },
+  "devDependencies": {
+    "@types/leaflet": "^1.7.0",
+    "prettier": "^1.17.1"
   }
 }
