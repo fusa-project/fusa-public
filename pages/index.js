@@ -18,7 +18,7 @@ export default function Home() {
         </p>
 
         <div className="grid">
-          <Link href="explore_valdivia">
+          <Link href="">
             <a className="card">
               <h3>Explorar Mapa &rarr;</h3>
               <p>Explorar los eventos sonoros de la ciudad de Valdivia.</p>
