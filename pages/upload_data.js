@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, createRef } from "react";
 import { Box, Flex, Stack } from "@chakra-ui/react";
-import { TextField, Button, FormControlLabel, Checkbox, Grid } from '@material-ui/core';
+import { TextField, Button, FormControlLabel, Checkbox, Grid, Select, MenuItem, InputLabel } from '@material-ui/core';
 import { styled } from '@material-ui/core/styles';
 import GraphicEqRoundedIcon from '@material-ui/icons/GraphicEqRounded';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
@@ -47,6 +47,13 @@ export default function FormPage(props) {
 
   const onNameChange = e => {
     setName(e.currentTarget.value);
+  };
+
+  //Recording device
+  const [recording_device, setRecordingDevice] = useState('');
+
+  const onRecordingDeviceChanged = e => {
+    setRecordingDevice(e.target.value);
   };
 
   //Description
@@ -217,6 +224,26 @@ export default function FormPage(props) {
                 />
               </Card>
 
+              <Card>
+                <InputLabel shrink htmlFor="select-multiple-native">
+                  Dispositivo de grabación
+                </InputLabel>
+                <Controller
+                  name="recording_device"
+                  defaultValue=""
+                  control={control}
+                  render={({ field }) => <Select 
+                    {...field}
+                    value={recording_device}
+                    onChange={onRecordingDeviceChanged}
+                    style={{ width: '100%' }}
+                    variant="outlined"
+                    >
+                    <MenuItem value={"cellphone"}>Teléfono celular</MenuItem>
+                    <MenuItem value={"sonometer"}>Sonómetro</MenuItem>
+                    </Select>}
+                />
+              </Card>
               <Grid container>
                 <Grid item sm={6} xs={6}>
                   <Card>
