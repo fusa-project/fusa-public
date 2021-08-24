@@ -14,9 +14,17 @@ const MapEvents = ( {onClick, setPosition} ) =>{
   return null;
 }
 
+function getHeight(windowWidth) {
+  var height
+  if (windowWidth > 960) height = "750px"
+  else height = "400px"
+  return height
+}
+
 export const Map = ( {onClick} ) => {
   const [map, setMap] = useState();
   const [position, setPosition] = useState({lat: -39.80, lng: -73.22})
+  const windowWidth = window.innerWidth
 
   useEffect(() => {
     if ("geolocation" in navigator && map) {
@@ -31,25 +39,28 @@ export const Map = ( {onClick} ) => {
   }, [map]);
 
   return (
-    <MapContainer
-      center={position}
-      zoom={13}
-      scrollWheelZoom={true}
-      style={{ height: "750px", width: "100%" }}
-      whenCreated={setMap}
-    >
-    <MapEvents onClick={onClick} setPosition={setPosition}/>
-      <TileLayer url="https://api.mapbox.com/styles/v1/mvernier/ckp75i4sw396418n6gbb4psz0/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoibXZlcm5pZXIiLCJhIjoiY2twNzRxeTJzMDQycTJvbzA5N2NyN283biJ9.nMykNl6xWvMe8MV8DLH-ig" />
-      <Marker position= { position } >
-        <Popup>
-          <div>
-              <ul>
-                  <li><b>Latitud:</b> {position.lat}</li>
-                  <li><b>Longitud:</b> {position.lng}</li>
-              </ul>
-          </div>
-        </Popup>
-      </Marker>
-    </MapContainer>
+    <div>
+      <MapContainer
+        id="map"
+        center={position}
+        zoom={13}
+        scrollWheelZoom={true}
+        style={{ height: getHeight(windowWidth), width: "100%" }}
+        whenCreated={setMap}
+      >
+      <MapEvents onClick={onClick} setPosition={setPosition}/>
+        <TileLayer url="https://api.mapbox.com/styles/v1/mvernier/ckp75i4sw396418n6gbb4psz0/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoibXZlcm5pZXIiLCJhIjoiY2twNzRxeTJzMDQycTJvbzA5N2NyN283biJ9.nMykNl6xWvMe8MV8DLH-ig" />
+        <Marker position= { position } >
+          <Popup>
+            <div>
+                <ul>
+                    <li><b>Latitud:</b> {position.lat}</li>
+                    <li><b>Longitud:</b> {position.lng}</li>
+                </ul>
+            </div>
+          </Popup>
+        </Marker>
+      </MapContainer>
+    </div>
   );
 };
