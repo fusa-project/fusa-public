@@ -17,6 +17,7 @@
     "@material-ui/icons": "^4.11.2",
     "@zeit/next-sass": "^1.0.1",
     "axios": "^0.21.1",
+    "chroma-js": "^2.1.2",
     "formidable": "^1.2.2",
     "framer-motion": "^4.1.17",
     "fs": "0.0.1-security",

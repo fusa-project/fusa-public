@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, createRef } from "react";
 import { Box, Flex, Stack } from "@chakra-ui/react";
-import { TextField, Button, FormControlLabel, Checkbox, Grid, Select, MenuItem, InputLabel } from '@material-ui/core';
+import Select from 'react-select';
+import { TextField, Button, FormControlLabel, Checkbox, Grid, Select as MaterialSelect, MenuItem, InputLabel } from '@material-ui/core';
 import { styled } from '@material-ui/core/styles';
 import GraphicEqRoundedIcon from '@material-ui/icons/GraphicEqRounded';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
@@ -8,14 +9,15 @@ import dynamic from "next/dynamic";
 import Head from "next/head";
 import moment from 'moment';
 import { useForm, Controller } from "react-hook-form";
+import makeAnimated from 'react-select/animated';
+import { taxonomyOptions } from '../data/taxonomy';
+import chroma from 'chroma-js';
+
+const animatedComponents = makeAnimated();
 
 const InputFile = styled('input')({
   display: 'none',
 });
-
-function capitalizeFirstLetter(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-}
 
 const MapWithNoSSR = dynamic(() => import("../components/geopositionData").then((v) => v.Map), {
   ssr: false,
@@ -69,17 +71,105 @@ export default function FormPage(props) {
   };
 
   //Tags
-  let tag_classes = ['car', 'dog', 'people']
-  const [tags, setTags] = useState({
-    car: false,
-    dog: false,
-    people: false,
-  });
+  const [tags, setTags] = useState()
 
-  const handleTagChange = (event) => {
-    setTags({ ...tags, [event.target.id]: event.target.checked });
+  const orderOptions = values => {
+    return values.filter(v => v.isFixed).concat(values.filter(v => !v.isFixed));
   };
 
+  const onTagChange = (value, { action, removedValue }) => {
+    switch (action) {
+      case 'remove-value':
+      case 'pop-value':
+        if (removedValue.isFixed) {
+          return;
+        }
+        break;
+      case 'clear':
+        value = taxonomyOptions.filter(v => v.isFixed);
+        break;
+    }
+
+    value = orderOptions(value);
+    setTags( value );
+  };
+
+  const colourStyles = {
+    control: styles => ({ ...styles, backgroundColor: 'white' }),
+    option: (styles, { data, isDisabled, isFocused, isSelected }) => {
+      const color = chroma(data.color);
+      return {
+        ...styles,
+        backgroundColor: isDisabled
+          ? null
+          : isSelected
+          ? data.color
+          : isFocused
+          ? color.alpha(0.1).css()
+          : null,
+        color: isDisabled
+          ? '#ccc'
+          : isSelected
+          ? chroma.contrast(color, 'white') > 2
+            ? 'white'
+            : 'black'
+          : data.color,
+        cursor: isDisabled ? 'not-allowed' : 'default',
+  
+        ':active': {
+          ...styles[':active'],
+          backgroundColor:
+            !isDisabled && (isSelected ? data.color : color.alpha(0.1).css()),
+        },
+      };
+    },
+    multiValue: (styles, { data }) => {
+      const color = chroma(data.color);
+      return {
+        ...styles,
+        backgroundColor: color.alpha(0.2).css(),
+      };
+    },
+    multiValueLabel: (styles, { data }) => ({
+      ...styles,
+      color: data.color,
+    }),
+    multiValueRemove: (styles, { data }) => ({
+      ...styles,
+      color: data.color,
+      ':hover': {
+        backgroundColor: data.color,
+        color: 'white',
+      },
+    }),
+  };
+
+  const groupStyles = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  };
+
+  const groupBadgeStyles = {
+    backgroundColor: '#EBECF0',
+    borderRadius: '2em',
+    color: '#172B4D',
+    display: 'inline-block',
+    fontSize: 12,
+    fontWeight: 'normal',
+    lineHeight: '1',
+    minWidth: 1,
+    padding: '0.16666666666667em 0.5em',
+    textAlign: 'center',
+  };
+  
+  const formatGroupLabel = data => (
+    <div style={groupStyles}>
+      <span>{data.label}</span>
+      <span style={groupBadgeStyles}>{data.options.length}</span>
+    </div>
+  );
+  
   //Map coords
   const [position, setPosition] = useState(props)
 
@@ -203,6 +293,9 @@ export default function FormPage(props) {
                 }
               </Grid>
               <Card>
+                <InputLabel shrink htmlFor="select-multiple-native">
+                  Nombre de audio
+                </InputLabel>
                 <Controller
                   name="name"
                   defaultValue=""
@@ -213,7 +306,6 @@ export default function FormPage(props) {
                   render={({ field }) => <TextField
                     {...field}
                     inputRef={nameInput}
-                    label="Nombre de audio"
                     type="text"
                     style={{ width: '100%' }}
                     InputLabelProps={{
@@ -232,7 +324,7 @@ export default function FormPage(props) {
                   name="recording_device"
                   defaultValue=""
                   control={control}
-                  render={({ field }) => <Select 
+                  render={({ field }) => <MaterialSelect 
                     {...field}
                     value={recording_device}
                     onChange={onRecordingDeviceChanged}
@@ -241,7 +333,7 @@ export default function FormPage(props) {
                     >
                     <MenuItem value={"cellphone"}>Teléfono celular</MenuItem>
                     <MenuItem value={"sonometer"}>Sonómetro</MenuItem>
-                    </Select>}
+                    </MaterialSelect>}
                 />
               </Card>
               <Grid container>
@@ -285,6 +377,9 @@ export default function FormPage(props) {
                 </Grid>
               </Grid>
               <Card>
+                <InputLabel shrink htmlFor="select-multiple-native">
+                  Fecha/hora de grabación
+                </InputLabel>
                 <Controller
                   name="recorded_at"
                   control={control}
@@ -292,7 +387,6 @@ export default function FormPage(props) {
                   rules={{ required: true }}
                   render={({ field }) => <TextField
                     {...field}
-                    label="Fecha/hora de grabación"
                     type="datetime-local"
                     style={{ width: '100%' }}
                     InputLabelProps={{
@@ -303,33 +397,27 @@ export default function FormPage(props) {
                 />
               </Card>
               <Card>
-                {
-                  tag_classes.map((class_name, index) => {
-                    return (
-                      <Controller
-                        key={index}
-                        name={'tags.' + class_name}
-                        defaultValue={false}
-                        control={control}
-                        render={({ field }) => (
-                          <FormControlLabel
-                            control={
-                              <Checkbox
-                                {...field}
-                                checked={tags[class_name]}
-                                onChange={handleTagChange}
-                                id={class_name}
-                              />
-                            }
-                            label={capitalizeFirstLetter(class_name)}
-                          />
-                        )}
-                      />
-                    )
-                  })
-                }
+              <InputLabel shrink htmlFor="select-multiple-native">
+                Categorías
+              </InputLabel>
+              <Select
+                value={tags}
+                onChange={onTagChange}
+                closeMenuOnSelect={false}
+                label="Categorías"
+                components={animatedComponents}
+                defaultValue={[]}
+                placeholder={'Seleccione las categorías'}
+                formatGroupLabel={formatGroupLabel}
+                isMulti
+                options={taxonomyOptions}
+                styles={colourStyles}
+              />
               </Card>
               <Card>
+                <InputLabel shrink htmlFor="select-multiple-native">
+                  Descripción
+                </InputLabel>
                 <Controller
                   name="description"
                   control={control}
@@ -340,7 +428,6 @@ export default function FormPage(props) {
                   render={({ field }) => <TextField
                     {...field}
                     inputRef={descriptionInput}
-                    label="Descripción"
                     type="text"
                     multiline={true}
                     rows={3}
