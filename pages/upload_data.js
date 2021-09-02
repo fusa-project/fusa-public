@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef, createRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Box, Flex, Stack } from "@chakra-ui/react";
 import Select from 'react-select';
-import { TextField, Button, FormControlLabel, Checkbox, Grid, Select as MaterialSelect, MenuItem, InputLabel } from '@material-ui/core';
+import { Snackbar, TextField, Button, Grid, Select as MaterialSelect, MenuItem, InputLabel } from '@material-ui/core';
+import MuiAlert from '@material-ui/lab/Alert';
 import { styled } from '@material-ui/core/styles';
 import GraphicEqRoundedIcon from '@material-ui/icons/GraphicEqRounded';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
@@ -12,9 +13,13 @@ import { useForm, Controller } from "react-hook-form";
 import makeAnimated from 'react-select/animated';
 import { taxonomyOptions } from '../data/taxonomy';
 import chroma from 'chroma-js';
+import postAudioData from '../utilities/api'
 
 const animatedComponents = makeAnimated();
 
+function Alert(props) {
+  return <MuiAlert elevation={6} {...props} />;
+}
 const InputFile = styled('input')({
   display: 'none',
 });
@@ -52,7 +57,7 @@ export default function FormPage(props) {
   };
 
   //Recording device
-  const [recording_device, setRecordingDevice] = useState('');
+  const [recording_device, setRecordingDevice] = useState();
 
   const onRecordingDeviceChanged = e => {
     setRecordingDevice(e.target.value);
@@ -186,67 +191,113 @@ export default function FormPage(props) {
     }
   }, []);
 
+
+  // Alerts
+  const [openSuccess, setOpenSuccess] = useState(false);
+  const [openFillWarn, setOpenFillWarn] = useState(false);
+  const [openLongWarn, setOpenLongWarn] = useState(false);
+  const handleCloseSuccess = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSuccess(false);
+  };
+  const handleCloseFillWarn = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenFillWarn(false);
+  };
+  const handleCloseLongWarn = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenLongWarn(false);
+  };
+
   //Audio file
   const [file, setFile] = useState();
   const [audio, setAudio] = useState();
+  const [audioBase64, setAudioBase64] = useState();
 
   const uploadAudio = (event) => {
     if (event.target.files && event.target.files[0]) {
       const i = event.target.files[0];
-      setAudio(URL.createObjectURL(i))
-      setFile(i);
+      var reader = new FileReader();
+      reader.readAsDataURL(i);
+      const audio_object = URL.createObjectURL(i)
+      reader.onload = function(e) {
+        var media = new Audio(reader.result);
+        media.onloadedmetadata = function(){
+            var audio_duration = media.duration
+            if (audio_duration <= 60){
+              setAudio(audio_object)
+              setFile(i);
+              setAudioBase64(e.target.result)
+            }
+            else{
+              setOpenLongWarn(true);
+            }
+        };
+      };
     }
   };
 
-  //Audio data
-  const [audioData, setAudioData] = useState({
-    name: '',
-    format: '',
-    size: '',
-    duration: '',
-    recorded_at: '',
-    uploaded_at: '',
-    latitude: '',
-    longitude: '',
-    data: '',
-    tags: '',
-    has_parent: '',
-    parent: ''
-  })
-
   const { control, handleSubmit, reset, formState, formState: { isSubmitSuccessful } } = useForm();
-
-  const onSubmit = data => {
-    try {
-      var duration = document.getElementById("audio_tag").duration
-      setAudioData({
-        name: data.name,
-        format: file.type,
-        size: file.size,
-        duration: duration,
-        recorded_at: moment(data.recorded_at).unix(),
-        uploaded_at: moment().unix(),
-        latitude: data.latitude,
-        longitude: data.longitude,
-        tags: data.tags,
-      })
-      console.log(data)
-      console.log(audioData)
-      setName('')
-      setDescription('')
-      setTags({
-        car: false,
-        dog: false,
-        people: false,
-      })
-      setPosition({})
-      setFile()
-      setAudio()
-      document.getElementById("audioFile").value = "";
-      reset()
+  const onSubmit = async data => {
+    var duration = document.getElementById("audio_tag").duration
+    var user_test = {
+      category: "enterprise",
+      username: "username"
     }
-    catch (e) {
-      console.log(e)
+    var tags_list = [];
+    if (data.tags) {
+      Object.keys(data.tags).forEach((key) => {
+        tags_list.push(data.tags[key].value)
+      })
+    }
+
+    var tags = [{
+      username : 'username',
+      source_tags : tags_list
+    }]
+    
+    var full_data = {
+      name: data.name,
+      description: data.description,
+      format: file.type,
+      size: file.size,
+      duration: duration,
+      recorded_at: moment(data.recorded_at).unix(),
+      uploaded_at: moment().unix(),
+      latitude: data.latitude,
+      longitude: data.longitude,
+      data: audioBase64,
+      recording_device: data.recording_device,
+      user: user_test,
+      tags: tags
+    }
+
+    if (full_data.name == '' || full_data.latitude == '' || full_data.tags[0].source_tags.length == 0){
+      setOpenFillWarn(true)
+    }
+    else{
+      const postAudio = () => {
+        return Promise.resolve(postAudioData(full_data));
+      };
+      postAudio().then(() => {
+        setName('')
+        setDescription('')
+        setTags()
+        setPosition({})
+        setRecordingDevice('')
+        setFile()
+        setAudio()
+        setAudioBase64()
+        document.getElementById("audioFile").value = "";
+        reset()
+        setOpenSuccess(true)
+      })
     }
   };
 
@@ -259,6 +310,21 @@ export default function FormPage(props) {
             <link rel="icon" href="/favicon.ico" />
           </Head>
           <h1 style={{ fontSize: '2rem', textAlign: 'center' }}>Formulario de subida de audio</h1>
+          <Snackbar open={openLongWarn} anchorOrigin={{vertical: 'top', horizontal: 'center'}} autoHideDuration={6000} onClose={handleCloseLongWarn}>
+            <Alert onClose={handleCloseLongWarn} severity="warning">
+              Archivo de audio demasiado largo. La duración máxima es de 60 segundos.
+            </Alert>
+          </Snackbar>
+          <Snackbar open={openFillWarn} anchorOrigin={{vertical: 'top', horizontal: 'center'}} autoHideDuration={6000} onClose={handleCloseFillWarn}>
+            <Alert onClose={handleCloseFillWarn} severity="warning">
+              Debe rellenar los campos faltantes.
+            </Alert>
+          </Snackbar>
+          <Snackbar open={openSuccess} anchorOrigin={{vertical: 'top', horizontal: 'center'}} autoHideDuration={6000} onClose={handleCloseSuccess}>
+            <Alert onClose={handleCloseSuccess} severity="success">
+              Archivo de audio enviado con éxito.
+            </Alert>
+          </Snackbar>
         </Grid>
         <Grid item xs={12} sm={12} md={6}>
           <Flex
@@ -322,16 +388,16 @@ export default function FormPage(props) {
                 </InputLabel>
                 <Controller
                   name="recording_device"
-                  defaultValue=""
                   control={control}
+                  defaultValue={"smartphone"}
+                  value={recording_device}
+                  onChange={onRecordingDeviceChanged}
                   render={({ field }) => <MaterialSelect 
                     {...field}
-                    value={recording_device}
-                    onChange={onRecordingDeviceChanged}
                     style={{ width: '100%' }}
                     variant="outlined"
                     >
-                    <MenuItem value={"cellphone"}>Teléfono celular</MenuItem>
+                    <MenuItem value={"smartphone"}>Teléfono celular</MenuItem>
                     <MenuItem value={"sonometer"}>Sonómetro</MenuItem>
                     </MaterialSelect>}
                 />
@@ -400,18 +466,23 @@ export default function FormPage(props) {
               <InputLabel shrink htmlFor="select-multiple-native">
                 Categorías
               </InputLabel>
-              <Select
-                value={tags}
-                onChange={onTagChange}
-                closeMenuOnSelect={false}
-                label="Categorías"
-                components={animatedComponents}
-                defaultValue={[]}
-                placeholder={'Seleccione las categorías'}
-                formatGroupLabel={formatGroupLabel}
-                isMulti
-                options={taxonomyOptions}
-                styles={colourStyles}
+                <Controller
+                  name="tags"
+                  value={tags}
+                  onChange={onTagChange}
+                  control={control}
+                  render={({ field }) => <Select
+                  {...field}
+                  closeMenuOnSelect={false}
+                  label="Categorías"
+                  components={animatedComponents}
+                  defaultValue={[]}
+                  placeholder={'Seleccione las categorías'}
+                  formatGroupLabel={formatGroupLabel}
+                  isMulti
+                  options={taxonomyOptions}
+                  styles={colourStyles}
+                />}
               />
               </Card>
               <Card>
@@ -450,7 +521,7 @@ export default function FormPage(props) {
             type="submit"
             form="audioForm"
             size="large"
-            disabled
+            disabled={!file || !position} 
             startIcon={<CloudUploadIcon />}>
             Enviar
           </Button>
