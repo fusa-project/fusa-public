@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Box, Flex, Stack } from "@chakra-ui/react";
 import Select from 'react-select';
-import { Snackbar, TextField, Button, Grid, Select as MaterialSelect, MenuItem, InputLabel } from '@material-ui/core';
+import { Backdrop, Snackbar, CircularProgress, TextField, Button, Grid, Select as MaterialSelect, MenuItem, InputLabel, makeStyles} from '@material-ui/core';
 import MuiAlert from '@material-ui/lab/Alert';
 import { styled } from '@material-ui/core/styles';
 import GraphicEqRoundedIcon from '@material-ui/icons/GraphicEqRounded';
@@ -16,6 +16,12 @@ import chroma from 'chroma-js';
 import postAudioData from '../utilities/api'
 
 const animatedComponents = makeAnimated();
+const useStyles = makeStyles((theme) => ({
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#fff',
+  },
+}));
 
 function Alert(props) {
   return <MuiAlert elevation={6} {...props} />;
@@ -29,6 +35,7 @@ const MapWithNoSSR = dynamic(() => import("../components/geopositionData").then(
 });
 
 export default function FormPage(props) {
+  const classes = useStyles();
 
   const Card = ({ children }) => {
     return (
@@ -215,6 +222,9 @@ export default function FormPage(props) {
     setOpenLongWarn(false);
   };
 
+  // Loading
+  const [loading, setLoading] = useState(false);
+
   //Audio file
   const [file, setFile] = useState();
   const [audio, setAudio] = useState();
@@ -283,6 +293,7 @@ export default function FormPage(props) {
     }
     else{
       const postAudio = () => {
+        setLoading(true)
         return Promise.resolve(postAudioData(full_data));
       };
       postAudio().then(() => {
@@ -297,6 +308,7 @@ export default function FormPage(props) {
         document.getElementById("audioFile").value = "";
         reset()
         setOpenSuccess(true)
+        setLoading(false)
       })
     }
   };
@@ -521,11 +533,16 @@ export default function FormPage(props) {
             type="submit"
             form="audioForm"
             size="large"
-            disabled={!file || !position} 
+            disabled={!file || !position || loading}
             startIcon={<CloudUploadIcon />}>
             Enviar
           </Button>
         </Grid>
+        { loading &&
+          <Backdrop className={classes.backdrop} open={loading}>
+            <CircularProgress size={34} color="inherit" />
+          </Backdrop>  
+        }
         <style jsx global>{`
           html,
           body {
