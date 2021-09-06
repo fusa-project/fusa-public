@@ -278,7 +278,7 @@ export default function FormPage(props) {
       tags: tags
     }
 
-    if (full_data.name == '' || full_data.latitude == '' || full_data.tags[0].source_tags.length == 0){
+    if (full_data.name == '' || full_data.latitude == ''){
       setOpenFillWarn(true)
     }
     else{
