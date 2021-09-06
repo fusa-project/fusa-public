@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Box, Flex, Stack } from "@chakra-ui/react";
 import Select from 'react-select';
-import { Snackbar, TextField, Button, Grid, Select as MaterialSelect, MenuItem, InputLabel } from '@material-ui/core';
+import { Backdrop, Snackbar, CircularProgress, TextField, Button, Grid, Select as MaterialSelect, MenuItem, InputLabel, makeStyles} from '@material-ui/core';
 import MuiAlert from '@material-ui/lab/Alert';
 import { styled } from '@material-ui/core/styles';
 import GraphicEqRoundedIcon from '@material-ui/icons/GraphicEqRounded';
@@ -16,6 +16,12 @@ import chroma from 'chroma-js';
 import postAudioData from '../utilities/api'
 
 const animatedComponents = makeAnimated();
+const useStyles = makeStyles((theme) => ({
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#fff',
+  },
+}));
 
 function Alert(props) {
   return <MuiAlert elevation={6} {...props} />;
@@ -29,6 +35,7 @@ const MapWithNoSSR = dynamic(() => import("../components/geopositionData").then(
 });
 
 export default function FormPage(props) {
+  const classes = useStyles();
 
   const Card = ({ children }) => {
     return (
@@ -196,6 +203,7 @@ export default function FormPage(props) {
   const [openSuccess, setOpenSuccess] = useState(false);
   const [openFillWarn, setOpenFillWarn] = useState(false);
   const [openLongWarn, setOpenLongWarn] = useState(false);
+  const [openFormatWarn, setOpenFormatWarn] = useState(false);
   const handleCloseSuccess = (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -214,6 +222,15 @@ export default function FormPage(props) {
     }
     setOpenLongWarn(false);
   };
+  const handleCloseFormatWarn = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenFormatWarn(false);
+  };
+
+  // Loading
+  const [loading, setLoading] = useState(false);
 
   //Audio file
   const [file, setFile] = useState();
@@ -223,23 +240,29 @@ export default function FormPage(props) {
   const uploadAudio = (event) => {
     if (event.target.files && event.target.files[0]) {
       const i = event.target.files[0];
-      var reader = new FileReader();
-      reader.readAsDataURL(i);
-      const audio_object = URL.createObjectURL(i)
-      reader.onload = function(e) {
-        var media = new Audio(reader.result);
-        media.onloadedmetadata = function(){
-            var audio_duration = media.duration
-            if (audio_duration <= 60){
-              setAudio(audio_object)
-              setFile(i);
-              setAudioBase64(e.target.result)
-            }
-            else{
-              setOpenLongWarn(true);
-            }
+      var file_type = (i.type).split("/",)[0]
+      if (file_type == 'audio'){
+        var reader = new FileReader();
+        reader.readAsDataURL(i);
+        const audio_object = URL.createObjectURL(i)
+        reader.onload = function(e) {
+          var media = new Audio(reader.result);
+          media.onloadedmetadata = function(){
+              var audio_duration = media.duration
+              if (audio_duration <= 60){
+                setAudio(audio_object)
+                setFile(i);
+                setAudioBase64(e.target.result)
+              }
+              else{
+                setOpenLongWarn(true);
+              }
+          };
         };
-      };
+      }
+      else {
+        setOpenFormatWarn(true);
+      }
     }
   };
 
@@ -278,11 +301,12 @@ export default function FormPage(props) {
       tags: tags
     }
 
-    if (full_data.name == '' || full_data.latitude == '' || full_data.tags[0].source_tags.length == 0){
+    if (full_data.name == '' || full_data.latitude == ''){
       setOpenFillWarn(true)
     }
     else{
       const postAudio = () => {
+        setLoading(true)
         return Promise.resolve(postAudioData(full_data));
       };
       postAudio().then(() => {
@@ -297,6 +321,7 @@ export default function FormPage(props) {
         document.getElementById("audioFile").value = "";
         reset()
         setOpenSuccess(true)
+        setLoading(false)
       })
     }
   };
@@ -310,6 +335,12 @@ export default function FormPage(props) {
             <link rel="icon" href="/favicon.ico" />
           </Head>
           <h1 style={{ fontSize: '2rem', textAlign: 'center' }}>Formulario de subida de audio</h1>
+          <Snackbar open={openFormatWarn} anchorOrigin={{vertical: 'top', horizontal: 'center'}} autoHideDuration={6000} onClose={handleCloseFormatWarn}>
+            <Alert onClose={handleCloseFormatWarn} severity="warning">
+              Formato de archivo inválido, debe ser un archivo de audio.
+              Formatos válidos: WAV, MP3.
+            </Alert>
+          </Snackbar>
           <Snackbar open={openLongWarn} anchorOrigin={{vertical: 'top', horizontal: 'center'}} autoHideDuration={6000} onClose={handleCloseLongWarn}>
             <Alert onClose={handleCloseLongWarn} severity="warning">
               Archivo de audio demasiado largo. La duración máxima es de 60 segundos.
@@ -521,11 +552,16 @@ export default function FormPage(props) {
             type="submit"
             form="audioForm"
             size="large"
-            disabled={!file || !position} 
+            disabled={!file || !position || loading}
             startIcon={<CloudUploadIcon />}>
             Enviar
           </Button>
         </Grid>
+        { loading &&
+          <Backdrop className={classes.backdrop} open={loading}>
+            <CircularProgress size={34} color="inherit" />
+          </Backdrop>  
+        }
         <style jsx global>{`
           html,
           body {
