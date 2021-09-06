@@ -203,6 +203,7 @@ export default function FormPage(props) {
   const [openSuccess, setOpenSuccess] = useState(false);
   const [openFillWarn, setOpenFillWarn] = useState(false);
   const [openLongWarn, setOpenLongWarn] = useState(false);
+  const [openFormatWarn, setOpenFormatWarn] = useState(false);
   const handleCloseSuccess = (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -221,6 +222,12 @@ export default function FormPage(props) {
     }
     setOpenLongWarn(false);
   };
+  const handleCloseFormatWarn = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenFormatWarn(false);
+  };
 
   // Loading
   const [loading, setLoading] = useState(false);
@@ -233,23 +240,29 @@ export default function FormPage(props) {
   const uploadAudio = (event) => {
     if (event.target.files && event.target.files[0]) {
       const i = event.target.files[0];
-      var reader = new FileReader();
-      reader.readAsDataURL(i);
-      const audio_object = URL.createObjectURL(i)
-      reader.onload = function(e) {
-        var media = new Audio(reader.result);
-        media.onloadedmetadata = function(){
-            var audio_duration = media.duration
-            if (audio_duration <= 60){
-              setAudio(audio_object)
-              setFile(i);
-              setAudioBase64(e.target.result)
-            }
-            else{
-              setOpenLongWarn(true);
-            }
+      var file_type = (i.type).split("/",)[0]
+      if (file_type == 'audio'){
+        var reader = new FileReader();
+        reader.readAsDataURL(i);
+        const audio_object = URL.createObjectURL(i)
+        reader.onload = function(e) {
+          var media = new Audio(reader.result);
+          media.onloadedmetadata = function(){
+              var audio_duration = media.duration
+              if (audio_duration <= 60){
+                setAudio(audio_object)
+                setFile(i);
+                setAudioBase64(e.target.result)
+              }
+              else{
+                setOpenLongWarn(true);
+              }
+          };
         };
-      };
+      }
+      else {
+        setOpenFormatWarn(true);
+      }
     }
   };
 
@@ -322,6 +335,12 @@ export default function FormPage(props) {
             <link rel="icon" href="/favicon.ico" />
           </Head>
           <h1 style={{ fontSize: '2rem', textAlign: 'center' }}>Formulario de subida de audio</h1>
+          <Snackbar open={openFormatWarn} anchorOrigin={{vertical: 'top', horizontal: 'center'}} autoHideDuration={6000} onClose={handleCloseFormatWarn}>
+            <Alert onClose={handleCloseFormatWarn} severity="warning">
+              Formato de archivo inválido, debe ser un archivo de audio.
+              Formatos válidos: WAV, MP3.
+            </Alert>
+          </Snackbar>
           <Snackbar open={openLongWarn} anchorOrigin={{vertical: 'top', horizontal: 'center'}} autoHideDuration={6000} onClose={handleCloseLongWarn}>
             <Alert onClose={handleCloseLongWarn} severity="warning">
               Archivo de audio demasiado largo. La duración máxima es de 60 segundos.
