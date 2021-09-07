@@ -201,6 +201,7 @@ export default function FormPage(props) {
 
   // Alerts
   const [openSuccess, setOpenSuccess] = useState(false);
+  const [openFailed, setOpenFailed] = useState(false);
   const [openFillWarn, setOpenFillWarn] = useState(false);
   const [openLongWarn, setOpenLongWarn] = useState(false);
   const [openFormatWarn, setOpenFormatWarn] = useState(false);
@@ -209,6 +210,12 @@ export default function FormPage(props) {
       return;
     }
     setOpenSuccess(false);
+  };
+  const handleCloseFailed = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenFailed(false);
   };
   const handleCloseFillWarn = (event, reason) => {
     if (reason === 'clickaway') {
@@ -266,6 +273,9 @@ export default function FormPage(props) {
     }
   };
 
+
+  const [responseCode, setResponseCode] = useState();
+
   const { control, handleSubmit, reset, formState, formState: { isSubmitSuccessful } } = useForm();
   const onSubmit = async data => {
     var duration = document.getElementById("audio_tag").duration
@@ -309,19 +319,28 @@ export default function FormPage(props) {
         setLoading(true)
         return Promise.resolve(postAudioData(full_data));
       };
-      postAudio().then(() => {
-        setName('')
-        setDescription('')
-        setTags()
-        setPosition({})
-        setRecordingDevice('')
-        setFile()
-        setAudio()
-        setAudioBase64()
-        document.getElementById("audioFile").value = "";
-        reset()
-        setOpenSuccess(true)
-        setLoading(false)
+      postAudio().then((res) => {
+        res.code = 404
+        //res.code = 200
+        setResponseCode(res.code)
+        if (res.code == 200){
+          setName('')
+          setDescription('')
+          setTags()
+          setPosition({})
+          setRecordingDevice('')
+          setFile()
+          setAudio()
+          setAudioBase64()
+          document.getElementById("audioFile").value = "";
+          reset()
+          setOpenSuccess(true)
+          setLoading(false)
+        }
+        else {
+          setLoading(false)
+          setOpenFailed(true)
+        }
       })
     }
   };
@@ -338,12 +357,12 @@ export default function FormPage(props) {
           <Snackbar open={openFormatWarn} anchorOrigin={{vertical: 'top', horizontal: 'center'}} autoHideDuration={6000} onClose={handleCloseFormatWarn}>
             <Alert onClose={handleCloseFormatWarn} severity="warning">
               Formato de archivo inválido, debe ser un archivo de audio.
-              Formatos válidos: WAV, MP3.
+              Formatos válidos: <strong>WAV - MP3 - AIFF</strong>
             </Alert>
           </Snackbar>
           <Snackbar open={openLongWarn} anchorOrigin={{vertical: 'top', horizontal: 'center'}} autoHideDuration={6000} onClose={handleCloseLongWarn}>
             <Alert onClose={handleCloseLongWarn} severity="warning">
-              Archivo de audio demasiado largo. La duración máxima es de 60 segundos.
+              Archivo de audio demasiado largo. La duración máxima es de <strong>60 segundos.</strong>
             </Alert>
           </Snackbar>
           <Snackbar open={openFillWarn} anchorOrigin={{vertical: 'top', horizontal: 'center'}} autoHideDuration={6000} onClose={handleCloseFillWarn}>
@@ -354,6 +373,12 @@ export default function FormPage(props) {
           <Snackbar open={openSuccess} anchorOrigin={{vertical: 'top', horizontal: 'center'}} autoHideDuration={6000} onClose={handleCloseSuccess}>
             <Alert onClose={handleCloseSuccess} severity="success">
               Archivo de audio enviado con éxito.
+            </Alert>
+          </Snackbar>
+          <Snackbar open={openFailed} anchorOrigin={{vertical: 'top', horizontal: 'center'}} autoHideDuration={6000} onClose={handleCloseFailed}>
+            <Alert onClose={handleCloseFailed} severity="error">
+              <strong> HTTP error: status code {responseCode}. </strong>
+              Vuelva a intentarlo más tarde.
             </Alert>
           </Snackbar>
         </Grid>
