@@ -320,8 +320,6 @@ export default function FormPage(props) {
         return Promise.resolve(postAudioData(full_data));
       };
       postAudio().then((res) => {
-        res.code = 404
-        //res.code = 200
         setResponseCode(res.code)
         if (res.code == 200){
           setName('')
