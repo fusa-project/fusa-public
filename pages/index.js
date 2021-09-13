@@ -1,37 +1,49 @@
+import { useState } from 'react';
 import Head from 'next/head'
 import Link from 'next/link'
+import LoginHooks from '../components/login';
+import LogoutHooks from '../components/logout';
 
 export default function Home() {
+  const [login, setLogin] = useState(false)
+  const [user, setUser] = useState({})
+  function handleLogin(value) {
+    setLogin(value);
+  }
+  function handleUser(value) {
+    setUser(value);
+  }
   return (
     <div className="container">
       <Head>
-        <title>Proyecto FuSA</title>
+        <title>FuSA</title>
       </Head>
 
       <main>
         <h1 className="title">
-          Proyecto FuSA
+          FuSA
         </h1>
 
         <p className="description">
-          Análisis de las fuentes sonoras ambientales
+          Análisis de las FUentes Sonoras Ambientales
         </p>
-
-        <div className="grid">
-          <Link href="">
-            <a className="card">
-              <h3>Explorar Mapa &rarr;</h3>
-              <p>Explorar los eventos sonoros de la ciudad de Valdivia.</p>
-            </a>
-          </Link>
-
-          <Link href="upload_data">
-            <a className="card">
-              <h3>Añadir Datos  &rarr;</h3>
-              <p>Añadir sus grabaciones audio en el sistema FuSA.</p>
-            </a>
-          </Link>
-        </div>
+        {
+          login ?
+            <div className="grid">
+            <p className="welcome">
+              Bienvenido {user.name}
+            </p>
+            <Link href="upload_data">
+              <a className="card">
+                <h3>Añadir Datos  &rarr;</h3>
+                <p>Añadir sus grabaciones audios.</p>
+              </a>
+            </Link>
+            <LogoutHooks onLoginChange={handleLogin} onUserChange={handleUser}/>
+            </div>
+          :
+          <LoginHooks onLoginChange={handleLogin} onUserChange={handleUser}/>
+        }
       </main>
 
       <footer>
@@ -108,6 +120,11 @@ export default function Home() {
           font-size: 1.5rem;
         }
 
+        .welcome {
+          line-height: 1.0;
+          font-size: 1.2rem;
+        }
+
         code {
           background: #fafafa;
           border-radius: 5px;
@@ -129,9 +146,9 @@ export default function Home() {
 
         .card {
           margin: 1rem;
-          flex-basis: 45%;
+          flex-basis: 100%;
           padding: 1.5rem;
-          text-align: left;
+          text-align: center;
           color: inherit;
           text-decoration: none;
           border: 1px solid #eaeaea;

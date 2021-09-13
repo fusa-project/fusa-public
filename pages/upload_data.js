@@ -14,6 +14,10 @@ import makeAnimated from 'react-select/animated';
 import { taxonomyOptions } from '../data/taxonomy';
 import chroma from 'chroma-js';
 import postAudioData from '../utilities/api'
+import { useGoogleLogin } from 'react-use-googlelogin'
+
+const clientId =
+'707788443358-u05p46nssla3l8tmn58tpo9r5sommgks.apps.googleusercontent.com';  
 
 const animatedComponents = makeAnimated();
 const useStyles = makeStyles((theme) => ({
@@ -35,6 +39,8 @@ const MapWithNoSSR = dynamic(() => import("../components/geopositionData").then(
 });
 
 export default function FormPage(props) {
+
+  const { isSignedIn } = useGoogleLogin({clientId})
   const classes = useStyles();
 
   const Card = ({ children }) => {
@@ -56,7 +62,9 @@ export default function FormPage(props) {
   const nameInput = useRef();
 
   useEffect(() => {
-    nameInput.current.focus();
+    if (nameInput.current){
+      nameInput.current.focus();
+    }
   }, [name]);
 
   const onNameChange = e => {
@@ -75,7 +83,9 @@ export default function FormPage(props) {
   const descriptionInput = useRef();
 
   useEffect(() => {
-    descriptionInput.current.focus();
+    if (descriptionInput.current){
+      descriptionInput.current.focus();
+    }
   }, [description]);
 
   const onDescriptionChange = e => {
@@ -201,6 +211,7 @@ export default function FormPage(props) {
 
   // Alerts
   const [openSuccess, setOpenSuccess] = useState(false);
+  const [openFailed, setOpenFailed] = useState(false);
   const [openFillWarn, setOpenFillWarn] = useState(false);
   const [openLongWarn, setOpenLongWarn] = useState(false);
   const [openFormatWarn, setOpenFormatWarn] = useState(false);
@@ -209,6 +220,12 @@ export default function FormPage(props) {
       return;
     }
     setOpenSuccess(false);
+  };
+  const handleCloseFailed = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenFailed(false);
   };
   const handleCloseFillWarn = (event, reason) => {
     if (reason === 'clickaway') {
@@ -266,6 +283,9 @@ export default function FormPage(props) {
     }
   };
 
+
+  const [responseCode, setResponseCode] = useState();
+
   const { control, handleSubmit, reset, formState, formState: { isSubmitSuccessful } } = useForm();
   const onSubmit = async data => {
     var duration = document.getElementById("audio_tag").duration
@@ -309,25 +329,34 @@ export default function FormPage(props) {
         setLoading(true)
         return Promise.resolve(postAudioData(full_data));
       };
-      postAudio().then(() => {
-        setName('')
-        setDescription('')
-        setTags()
-        setPosition({})
-        setRecordingDevice('')
-        setFile()
-        setAudio()
-        setAudioBase64()
-        document.getElementById("audioFile").value = "";
-        reset()
-        setOpenSuccess(true)
-        setLoading(false)
+      postAudio().then((res) => {
+        setResponseCode(res.code)
+        if (res.code == 200){
+          setName('')
+          setDescription('')
+          setTags()
+          setPosition({})
+          setRecordingDevice('')
+          setFile()
+          setAudio()
+          setAudioBase64()
+          document.getElementById("audioFile").value = "";
+          reset()
+          setOpenSuccess(true)
+          setLoading(false)
+        }
+        else {
+          setLoading(false)
+          setOpenFailed(true)
+        }
       })
     }
   };
 
   return (
+    
     <div>
+      {isSignedIn ? 
       <Grid container justifyContent="center" spacing={2}>
         <Grid item xs={12}>
           <Head>
@@ -338,12 +367,12 @@ export default function FormPage(props) {
           <Snackbar open={openFormatWarn} anchorOrigin={{vertical: 'top', horizontal: 'center'}} autoHideDuration={6000} onClose={handleCloseFormatWarn}>
             <Alert onClose={handleCloseFormatWarn} severity="warning">
               Formato de archivo inválido, debe ser un archivo de audio.
-              Formatos válidos: WAV, MP3.
+              Formatos válidos: <strong>WAV - MP3 - AIFF</strong>
             </Alert>
           </Snackbar>
           <Snackbar open={openLongWarn} anchorOrigin={{vertical: 'top', horizontal: 'center'}} autoHideDuration={6000} onClose={handleCloseLongWarn}>
             <Alert onClose={handleCloseLongWarn} severity="warning">
-              Archivo de audio demasiado largo. La duración máxima es de 60 segundos.
+              Archivo de audio demasiado largo. La duración máxima es de <strong>60 segundos.</strong>
             </Alert>
           </Snackbar>
           <Snackbar open={openFillWarn} anchorOrigin={{vertical: 'top', horizontal: 'center'}} autoHideDuration={6000} onClose={handleCloseFillWarn}>
@@ -354,6 +383,12 @@ export default function FormPage(props) {
           <Snackbar open={openSuccess} anchorOrigin={{vertical: 'top', horizontal: 'center'}} autoHideDuration={6000} onClose={handleCloseSuccess}>
             <Alert onClose={handleCloseSuccess} severity="success">
               Archivo de audio enviado con éxito.
+            </Alert>
+          </Snackbar>
+          <Snackbar open={openFailed} anchorOrigin={{vertical: 'top', horizontal: 'center'}} autoHideDuration={6000} onClose={handleCloseFailed}>
+            <Alert onClose={handleCloseFailed} severity="error">
+              <strong> HTTP error: status code {responseCode}. </strong>
+              Vuelva a intentarlo más tarde.
             </Alert>
           </Snackbar>
         </Grid>
@@ -573,6 +608,9 @@ export default function FormPage(props) {
           }
         `}</style>
       </Grid>
+      :
+      <p>405 Not Allowed</p>
+      }
     </div>
   );
 }
