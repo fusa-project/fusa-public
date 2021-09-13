@@ -14,6 +14,10 @@ import makeAnimated from 'react-select/animated';
 import { taxonomyOptions } from '../data/taxonomy';
 import chroma from 'chroma-js';
 import postAudioData from '../utilities/api'
+import { useGoogleLogin } from 'react-use-googlelogin'
+
+const clientId =
+'707788443358-u05p46nssla3l8tmn58tpo9r5sommgks.apps.googleusercontent.com';  
 
 const animatedComponents = makeAnimated();
 const useStyles = makeStyles((theme) => ({
@@ -35,6 +39,8 @@ const MapWithNoSSR = dynamic(() => import("../components/geopositionData").then(
 });
 
 export default function FormPage(props) {
+
+  const { isSignedIn } = useGoogleLogin({clientId})
   const classes = useStyles();
 
   const Card = ({ children }) => {
@@ -56,7 +62,9 @@ export default function FormPage(props) {
   const nameInput = useRef();
 
   useEffect(() => {
-    nameInput.current.focus();
+    if (nameInput.current){
+      nameInput.current.focus();
+    }
   }, [name]);
 
   const onNameChange = e => {
@@ -75,7 +83,9 @@ export default function FormPage(props) {
   const descriptionInput = useRef();
 
   useEffect(() => {
-    descriptionInput.current.focus();
+    if (descriptionInput.current){
+      descriptionInput.current.focus();
+    }
   }, [description]);
 
   const onDescriptionChange = e => {
@@ -344,7 +354,9 @@ export default function FormPage(props) {
   };
 
   return (
+    
     <div>
+      {isSignedIn ? 
       <Grid container justifyContent="center" spacing={2}>
         <Grid item xs={12}>
           <Head>
@@ -596,6 +608,9 @@ export default function FormPage(props) {
           }
         `}</style>
       </Grid>
+      :
+      <p>405 Not Allowed</p>
+      }
     </div>
   );
 }
