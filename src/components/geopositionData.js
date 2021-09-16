@@ -23,7 +23,7 @@ function getHeight(windowWidth) {
 
 export const Map = ( {onClick} ) => {
   const [map, setMap] = useState();
-  const [position, setPosition] = useState({lat: -39.80, lng: -73.22})
+  const [position, setPosition] = useState({lat: '', lng: ''})
   const windowWidth = window.innerWidth
 
   useEffect(() => {
@@ -51,14 +51,6 @@ export const Map = ( {onClick} ) => {
       <MapEvents onClick={onClick} setPosition={setPosition}/>
         <TileLayer url="https://api.mapbox.com/styles/v1/mvernier/ckp75i4sw396418n6gbb4psz0/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoibXZlcm5pZXIiLCJhIjoiY2twNzRxeTJzMDQycTJvbzA5N2NyN283biJ9.nMykNl6xWvMe8MV8DLH-ig" />
         <Marker position= { position } >
-          <Popup>
-            <div>
-                <ul>
-                    <li><b>Latitud:</b> {position.lat}</li>
-                    <li><b>Longitud:</b> {position.lng}</li>
-                </ul>
-            </div>
-          </Popup>
         </Marker>
       </MapContainer>
     </div>
