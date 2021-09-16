@@ -16,7 +16,6 @@ import makeAnimated from 'react-select/animated';
 import chroma from 'chroma-js';
 import { taxonomyOptions } from '@data/taxonomy';
 import postAudioData from '@util/api'
-import { useAuthContext } from '@context/auth';
 
 const animatedComponents = makeAnimated();
 
@@ -32,10 +31,7 @@ const MapWithNoSSR = dynamic(() => import("@components/geopositionData").then((v
 });
 
 const UploadAudio = (props) => {
-  const { currentUser } = useAuthContext()
-  if (!currentUser) {
-    Router.push("/");
-  }
+  const currentUser = { email: 'demo@fusa.cl' }
   const Card = ({ children }) => {
     return (
       <Box style={{ padding: '1rem', transition: 'color 0.15s ease, border-color 0.15s ease' }} >
