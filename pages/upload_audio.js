@@ -3,6 +3,7 @@ import { Box, Flex, Stack } from "@chakra-ui/react";
 import Select from 'react-select';
 import { Snackbar, TextField, Button, Grid, Select as MaterialSelect, MenuItem, InputLabel, Backdrop, CircularProgress} from '@material-ui/core';
 import MuiAlert from '@material-ui/lab/Alert';
+import { AlertTitle } from '@material-ui/lab';
 import { styled } from '@material-ui/core/styles';
 import GraphicEqRoundedIcon from '@material-ui/icons/GraphicEqRounded';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
@@ -205,6 +206,7 @@ const UploadAudio = (props) => {
   const [openSuccess, setOpenSuccess] = useState(false);
   const [openFailed, setOpenFailed] = useState(false);
   const [openFillWarn, setOpenFillWarn] = useState(false);
+  const [emptyFields, setEmptyFields] = useState([])
   const [openLongWarn, setOpenLongWarn] = useState(false);
   const [openFormatWarn, setOpenFormatWarn] = useState(false);
   const handleCloseSuccess = (event, reason) => {
@@ -317,10 +319,22 @@ const UploadAudio = (props) => {
       user: user,
       tags: tags
     }
-
-    if (full_data.name == '' || full_data.latitude == ''){
+    var empty_name = full_data.name == ''
+    var empty_geolocation = full_data.latitude == ''
+    if (empty_name && empty_geolocation){
+      setEmptyFields('Ingrese un nombre al archivo de audio y seleccione un punto en el mapa.')
       setOpenFillWarn(true)
     }
+    else if (empty_name || empty_geolocation){
+      if (empty_name){
+        setEmptyFields('Ingrese un nombre al archivo de audio.')
+      }
+      else{
+        setEmptyFields('Seleccione un punto en el mapa.')
+      }
+      setOpenFillWarn(true)
+    }
+    
     else{
       const postAudio = () => {
         setLoading(true)
@@ -377,7 +391,8 @@ const UploadAudio = (props) => {
             </Snackbar>
             <Snackbar open={openFillWarn} anchorOrigin={{vertical: 'top', horizontal: 'center'}} autoHideDuration={6000} onClose={handleCloseFillWarn}>
               <Alert onClose={handleCloseFillWarn} severity="warning">
-                Debe rellenar los campos faltantes.
+                <AlertTitle><strong>Rellene campos faltantes</strong></AlertTitle>
+                { emptyFields }
               </Alert>
             </Snackbar>
             <Snackbar open={openSuccess} anchorOrigin={{vertical: 'top', horizontal: 'center'}} autoHideDuration={6000} onClose={handleCloseSuccess}>
@@ -387,6 +402,7 @@ const UploadAudio = (props) => {
             </Snackbar>
             <Snackbar open={openFailed} anchorOrigin={{vertical: 'top', horizontal: 'center'}} autoHideDuration={6000} onClose={handleCloseFailed}>
               <Alert onClose={handleCloseFailed} severity="error">
+                <AlertTitle><strong>Error de servidor</strong></AlertTitle>
                 <strong> HTTP error: status code {responseCode}. </strong>
                 Vuelva a intentarlo más tarde.
               </Alert>
