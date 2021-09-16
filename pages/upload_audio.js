@@ -27,7 +27,7 @@ const InputFile = styled('input')({
   display: 'none',
 });
 
-const MapWithNoSSR = dynamic(() => import("../src/components/geopositionData").then((v) => v.Map), {
+const MapWithNoSSR = dynamic(() => import("@components/geopositionData").then((v) => v.Map), {
   ssr: false,
 });
 
@@ -412,7 +412,7 @@ const UploadAudio = (props) => {
             <Flex
               flexDirection="column"
               justifyContent="center">
-              <MapWithNoSSR onClick={MapCoords} />
+              <MapWithNoSSR onClick={MapCoords} currentPosition={position} />
             </Flex>
           </Grid>
           <Grid item xs={12} sm={12} md={6}>
