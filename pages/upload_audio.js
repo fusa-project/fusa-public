@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, forwardRef } from "react";
 import { Box, Flex, Stack } from "@chakra-ui/react";
 import Select from 'react-select';
 import { Snackbar, TextField, Button, Grid, Select as MaterialSelect, MenuItem, InputLabel, Backdrop, CircularProgress} from '@material-ui/core';
@@ -7,6 +7,7 @@ import { AlertTitle } from '@material-ui/lab';
 import { styled } from '@material-ui/core/styles';
 import GraphicEqRoundedIcon from '@material-ui/icons/GraphicEqRounded';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
+import FormatListNumberedIcon from '@material-ui/icons/FormatListNumbered';
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import Router from 'next/router';
@@ -17,6 +18,11 @@ import chroma from 'chroma-js';
 import { taxonomyOptions } from '@data/taxonomy';
 import postAudioData from '@util/api'
 import { useAuthContext } from '@context/auth';
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Slide } from '@mui/material';
+
+const Transition = forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const animatedComponents = makeAnimated();
 
@@ -49,6 +55,11 @@ const UploadAudio = (props) => {
       <source src={audio} type="audio/wav" />
     </audio>
   )
+
+  //Instructions
+  const [openInstructions, setOpenInstructions] = useState(false);
+  const handleOpenInstructions = () => setOpenInstructions(true);
+  const handleCloseInstructions = () => setOpenInstructions(false);
 
   //Name
   const [name, setName] = useState()
@@ -377,7 +388,35 @@ const UploadAudio = (props) => {
               <title>Subida de Audio</title>
               <link rel="icon" href="/favicon.ico" />
             </Head>
-            <h1 style={{ fontSize: '2rem', textAlign: 'center' }}>Formulario de subida de audio</h1>
+            <Grid container justifyContent="center" >
+              <h1 style={{ width: '100%', fontSize: '2rem', textAlign: 'center' }}>Formulario de subida de audio</h1>
+              <Button variant="outlined" onClick={handleOpenInstructions} startIcon={<FormatListNumberedIcon />}>Instrucciones</Button>      
+            </Grid>
+            <Dialog
+              open={openInstructions}
+              TransitionComponent={Transition}
+              keepMounted
+              onClose={handleCloseInstructions}
+              aria-describedby="alert-dialog-slide-description"
+            >
+              <DialogTitle>{"Instrucciones de uso"}</DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-slide-description">
+                  <ol>
+                    <li>Subir un archivo de audio.</li>
+                    <li>Seleccionar un punto en el mapa donde fue realizada la grabación.</li>
+                    <li>Elegir el dispositivo de grabación utilizado.</li>
+                    <li>Indicar la fecha y hora de la grabación.</li>
+                    <li><strong>[Opcional]</strong> Seleccionar las fuentes de audio que se encuentren en la grabación.</li>
+                    <li><strong>[Opcional]</strong> Describir brevemente la grabación realizada.</li>
+                    <li>Enviar grabación.</li>
+                  </ol>
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleCloseInstructions}>Entendido</Button>
+              </DialogActions>
+            </Dialog>
             <Snackbar open={openFormatWarn} anchorOrigin={{vertical: 'top', horizontal: 'center'}} autoHideDuration={6000} onClose={handleCloseFormatWarn}>
               <Alert onClose={handleCloseFormatWarn} severity="warning">
                 Formato de archivo inválido, debe ser un archivo de audio.
