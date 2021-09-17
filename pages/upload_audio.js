@@ -33,7 +33,7 @@ const InputFile = styled('input')({
   display: 'none',
 });
 
-const MapWithNoSSR = dynamic(() => import("../src/components/geopositionData").then((v) => v.Map), {
+const MapWithNoSSR = dynamic(() => import("@components/geopositionData").then((v) => v.Map), {
   ssr: false,
 });
 
@@ -332,17 +332,19 @@ const UploadAudio = (props) => {
     }
     var empty_name = full_data.name == ''
     var empty_geolocation = full_data.latitude == ''
-    if (empty_name && empty_geolocation){
-      setEmptyFields('Ingrese un nombre al archivo de audio y seleccione un punto en el mapa.')
-      setOpenFillWarn(true)
-    }
-    else if (empty_name || empty_geolocation){
+    var empty_datetime = isNaN(full_data.recorded_at)
+    var empty_fields_array = []
+    if (empty_name || empty_geolocation || empty_datetime){
       if (empty_name){
-        setEmptyFields('Ingrese un nombre al archivo de audio.')
+        empty_fields_array.push('Ingrese el nombre de la grabación.')
       }
-      else{
-        setEmptyFields('Seleccione un punto en el mapa.')
+      if (empty_geolocation){
+        empty_fields_array.push('Seleccione un punto en el mapa.')
       }
+      if (empty_datetime){
+        empty_fields_array.push('Indique una fecha y hora de grabación correcta.')
+      }
+      setEmptyFields(empty_fields_array)
       setOpenFillWarn(true)
     }
     
@@ -404,6 +406,7 @@ const UploadAudio = (props) => {
                 <DialogContentText id="alert-dialog-slide-description">
                   <ol>
                     <li>Subir un archivo de audio.</li>
+                    <li>Ingresar el nombre de la grabación.</li>
                     <li>Seleccionar un punto en el mapa donde fue realizada la grabación.</li>
                     <li>Elegir el dispositivo de grabación utilizado.</li>
                     <li>Indicar la fecha y hora de la grabación.</li>
@@ -431,7 +434,14 @@ const UploadAudio = (props) => {
             <Snackbar open={openFillWarn} anchorOrigin={{vertical: 'top', horizontal: 'center'}} autoHideDuration={6000} onClose={handleCloseFillWarn}>
               <Alert onClose={handleCloseFillWarn} severity="warning">
                 <AlertTitle><strong>Rellene campos faltantes</strong></AlertTitle>
-                { emptyFields }
+                { 
+                  emptyFields &&
+                  emptyFields.map((message, key) =>
+                  <li key={key.toString()}>
+                    {message}
+                  </li>
+                  )
+                }
               </Alert>
             </Snackbar>
             <Snackbar open={openSuccess} anchorOrigin={{vertical: 'top', horizontal: 'center'}} autoHideDuration={6000} onClose={handleCloseSuccess}>
@@ -455,7 +465,7 @@ const UploadAudio = (props) => {
             </Flex>
           </Grid>
           <Grid item xs={12} sm={12} md={6}>
-            <form id='audioForm' onSubmit={handleSubmit(onSubmit)}>
+            <form id='audioForm' onSubmit={handleSubmit(onSubmit)} noValidate>
               <Stack
                 alignItems="left"
                 spacing="10px">
@@ -489,7 +499,6 @@ const UploadAudio = (props) => {
                     value={name}
                     onChange={onNameChange}
                     control={control}
-                    rules={{ required: true }}
                     render={({ field }) => <TextField
                       {...field}
                       inputRef={nameInput}
@@ -529,7 +538,6 @@ const UploadAudio = (props) => {
                       <Controller
                         name="latitude"
                         control={control}
-                        rules={{ required: true }}
                         render={({ field }) => <TextField
                           {...field}
                           label="Latitud"
@@ -547,7 +555,6 @@ const UploadAudio = (props) => {
                       <Controller
                         name="longitude"
                         control={control}
-                        rules={{ required: true }}
                         render={({ field }) => <TextField
                           {...field}
                           label="Longitud"
@@ -569,7 +576,6 @@ const UploadAudio = (props) => {
                     name="recorded_at"
                     control={control}
                     defaultValue={moment().format("YYYY-MM-DDTHH:mm")}
-                    rules={{ required: true }}
                     render={({ field }) => <TextField
                       {...field}
                       type="datetime-local"
@@ -614,7 +620,6 @@ const UploadAudio = (props) => {
                     defaultValue=""
                     value={description}
                     onChange={onDescriptionChange}
-                    rules={{ required: true }}
                     render={({ field }) => <TextField
                       {...field}
                       inputRef={descriptionInput}
