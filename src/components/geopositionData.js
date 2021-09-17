@@ -28,10 +28,10 @@ export const Map = ( {onClick, currentPosition} ) => {
   const windowWidth = window.innerWidth
 
   const location = useGeolocation({
-    enableHighAccuracy: true, 
-    maximumAge:         15000, 
-    timeout:            12000
-  })
+    enableHighAccuracy: true,
+    maximumAge: 1500,
+    timeout: 13000
+  });
 
   useEffect(() => {
     if (location.latitude && map) {
@@ -41,10 +41,11 @@ export const Map = ( {onClick, currentPosition} ) => {
       map.panTo([latitude, longitude]);
       setPosition(coords)
     }
-  }, [map]);
+  }, [map, location]);
 
   return (
     <div>
+      { location.latitude &&
         <MapContainer
           id="map"
           center={position}
@@ -56,11 +57,12 @@ export const Map = ( {onClick, currentPosition} ) => {
         <MapEvents onClick={onClick} setPosition={setPosition}/>
           <TileLayer url="https://api.mapbox.com/styles/v1/mvernier/ckp75i4sw396418n6gbb4psz0/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoibXZlcm5pZXIiLCJhIjoiY2twNzRxeTJzMDQycTJvbzA5N2NyN283biJ9.nMykNl6xWvMe8MV8DLH-ig" />
           {
-            currentPosition &&
+            currentPosition.lat &&
             <Marker position= { currentPosition } >
             </Marker>
           }
         </MapContainer>
+      }
     </div>
   );
 };
