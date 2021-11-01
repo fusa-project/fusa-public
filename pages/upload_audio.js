@@ -291,12 +291,16 @@ const UploadAudio = (props) => {
     }
 
     var tags_list = [];
+    var upload_timestamp = moment().unix()
+    
     if (data.tags) {
       Object.keys(data.tags).forEach((key) => {
         tags_list.push(data.tags[key].value)
       })
       var tags = [{
         username : user_mail,
+        version: '',
+        timestamp: upload_timestamp,
         source_tags : tags_list
       }]
     }
@@ -311,7 +315,7 @@ const UploadAudio = (props) => {
       size: file.size,
       duration: duration,
       recorded_at: moment(data.recorded_at).unix(),
-      uploaded_at: moment().unix(),
+      uploaded_at: upload_timestamp,
       latitude: position.lat,
       longitude: position.lng,
       data: audioBase64,
