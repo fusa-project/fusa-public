@@ -1,9 +1,9 @@
 import { getAuth, signOut } from "firebase/auth";
-import app from "@util/base";
+import firebaseConfig from "@util/firebaseConfig";
 
 function Logout() {
   const logout = () => {
-    const auth = getAuth(app);
+    const auth = getAuth(firebaseConfig);
     signOut(auth)
   }
   return (

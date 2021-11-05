@@ -64,7 +64,7 @@ export const taxonomyOptions = [
     options: animalsOptions,
   },
   {
-    label: 'Climáticos / M Ambiente',
+    label: 'Climáticos / Medio Ambientales',
     options: environmentOptions,
   },
   {

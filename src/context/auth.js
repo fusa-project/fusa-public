@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { Backdrop, CircularProgress} from '@material-ui/core';
-import app from "@util/base";
+import firebaseConfig from "@util/firebaseConfig";
 
 const AuthContext = createContext({
   currentUser: null
@@ -11,7 +11,7 @@ export function AuthProvider({ children }){
   const [currentUser, setCurrentUser] = useState(null);
   const [pending, setPending] = useState(true);
 
-  const auth = getAuth(app);
+  const auth = getAuth(firebaseConfig);
 
   useEffect(() => {
     onAuthStateChanged(auth, user => {
