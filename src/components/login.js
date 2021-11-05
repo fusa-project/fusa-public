@@ -1,12 +1,12 @@
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import app from "@util/base";
+import firebaseConfig from "@util/firebaseConfig";
 
 const provider = new GoogleAuthProvider();
 provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
 
 function Login() {
   const signIn = () => {
-    const auth = getAuth(app);
+    const auth = getAuth(firebaseConfig);
     signInWithPopup(auth, provider)
     .then(result => {
       const credential = GoogleAuthProvider.credentialFromResult(result);
