@@ -7,7 +7,6 @@
         "@util/*": ["src/util/*"],
         "@data/*": ["src/data/*"],
         "@style/*": ["src/style/*"],
-        "@redux/*": ["src/redux/*"],
         "@public/*": ["public/*"],
         }
     }

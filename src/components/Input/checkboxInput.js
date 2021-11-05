@@ -12,8 +12,6 @@ import {
 } from '@material-ui/core'
 import { useState, forwardRef, useEffect } from 'react'
 import { taxonomyOptions } from '@data/taxonomy'
-import { useDispatch, useSelector } from 'react-redux'
-import { selectStatus } from '@redux/reducers/todos'
 
 const Transition = forwardRef(function Transition (props, ref) {
   return <Slide direction='up' ref={ref} {...props} />
