@@ -77,9 +77,8 @@ const UploadAudio = props => {
   const submitButtonRef = useRef()
 
   const submitForm = (data, actions) => {
-    const audio_tag = document.getElementById('audio_tag')
     setLoading(true)
-    handleSubmit(data, actions, audio_tag).then(res => {
+    handleSubmit(data, actions).then(res => {
       if (res.status == 200) setOpenSuccess(true)
       else setOpenFailed(true)
       setLoading(false)
@@ -151,6 +150,7 @@ const UploadAudio = props => {
                     </Grid>
                     <Field type='hidden' name='file' />
                     <Field type='hidden' name='user' />
+                    <Field type='hidden' name='audio_duration' />
                     <DateInput
                       name='recorded_at'
                       label='Fecha/hora de grabación'

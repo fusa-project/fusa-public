@@ -10,6 +10,7 @@ export const initialValues = {
   recording_device: 'smartphone',
   data: '',
   file: '',
+  audio_duration: '',
   recorded_at: moment().format('YYYY-MM-DDTHH:mm')
 }
 

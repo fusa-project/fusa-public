@@ -1,9 +1,7 @@
 import client from '@util/api'
 import moment from 'moment'
 
-const handleSubmit = async (data, actions, audio_tag) => {
-  var duration = audio_tag.duration
-
+const handleSubmit = async (data, actions) => {
   var user_mail = data.user.email
   var user = {
     category: 'citizen',
@@ -30,7 +28,7 @@ const handleSubmit = async (data, actions, audio_tag) => {
     description: data.description,
     format: data.file.type,
     size: data.file.size,
-    duration: duration,
+    duration: data.audio_duration,
     recorded_at: moment(data.recorded_at).unix(),
     uploaded_at: upload_timestamp,
     latitude: data.latitude,
