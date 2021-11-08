@@ -100,7 +100,7 @@ const CheckboxInput = ({ label, ...props }) => {
     if (formContext.isSubmitting) {
       setCheckedTags([])
     }
-  }, [checkedTags])
+  }, [formContext.isSubmitting])
 
   const handleOpenTags = () => {
     setOpenTags(true)
