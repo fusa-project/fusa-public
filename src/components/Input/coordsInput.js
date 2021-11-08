@@ -20,9 +20,11 @@ const CoordsInput = ({ label, ...props }) => {
       <TextField
         {...field}
         {...props}
+        InputProps={{
+          readOnly: true
+        }}
         type='number'
         style={{ width: '100%' }}
-        readOnly
         variant='outlined'
       />
       {meta.touched && meta.error ? (
