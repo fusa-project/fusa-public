@@ -1,6 +1,6 @@
-const AudioPlayer = ({ audio }) => (
-  <audio id='audio_tag' controlsList='nodownload' controls>
-    <source src={audio} type='audio/wav' />
+const AudioPlayer = ({ audio, audioRef }) => (
+  <audio id='audio_tag' ref={ audioRef } controlsList='nodownload' controls>
+    <source src={audio} />
   </audio>
 )
 export default AudioPlayer

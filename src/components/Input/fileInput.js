@@ -5,7 +5,7 @@ import Card from '@components/card'
 import AudioPlayer from '@components/Input/audioPlayer'
 import GraphicEqRoundedIcon from '@material-ui/icons/GraphicEqRounded'
 import { Button } from '@material-ui/core'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 const MyFileInput = styled.input`
   display: none;
@@ -19,7 +19,8 @@ const inputAudio = (
   setFile,
   setOpenLongWarn,
   setOpenFormatWarn,
-  formContext
+  formContext,
+  audioRef
 ) => {
   if (event.target.files && event.target.files[0]) {
     const i = event.target.files[0]
@@ -36,8 +37,13 @@ const inputAudio = (
             formContext.setFieldValue('name', i.name)
             formContext.setFieldValue('data', e.target.result)
             formContext.setFieldValue('file', i)
+            formContext.setFieldValue('audio_duration', audio_duration)
             setAudio(audio_object)
             setFile(i)
+            if (audioRef.current) {
+              audioRef.current.pause()
+              audioRef.current.load()
+            }
           } else {
             setOpenLongWarn(true)
           }
@@ -56,6 +62,15 @@ const FileInput = ({ label, ...props }) => {
   const [field, meta] = useField(props)
   const [openLongWarn, setOpenLongWarn] = useState(false)
   const [openFormatWarn, setOpenFormatWarn] = useState(false)
+  const audioRef = useRef()
+
+  useEffect(() => {
+    if (formContext.isSubmitting) {
+      setAudio()
+      setFile()
+    }
+  }, [formContext.isSubmitting])
+
   const handleCloseLongWarn = (event, reason) => {
     if (reason === 'clickaway') {
       return
@@ -68,7 +83,7 @@ const FileInput = ({ label, ...props }) => {
     }
     setOpenFormatWarn(false)
   }
-  
+
   return (
     <div>
       <FileSnackbars
@@ -93,7 +108,8 @@ const FileInput = ({ label, ...props }) => {
                 setFile,
                 setOpenLongWarn,
                 setOpenFormatWarn,
-                formContext
+                formContext,
+                audioRef
               )
             }
           />
@@ -114,7 +130,7 @@ const FileInput = ({ label, ...props }) => {
         )}
         {audio && (
           <Card>
-            <AudioPlayer audio={audio} />
+            <AudioPlayer audio={audio} audioRef={audioRef} />
           </Card>
         )}
       </div>
