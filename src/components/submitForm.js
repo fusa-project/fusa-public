@@ -2,7 +2,8 @@ import client from '@util/api'
 import moment from 'moment'
 
 const handleSubmit = async (data, actions) => {
-  var user_mail = data.user.email
+  //var user_mail = data.user.email
+  var user_mail = 'test@fusa.cl'
   var user = {
     category: 'citizen',
     username: user_mail

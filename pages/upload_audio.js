@@ -30,10 +30,10 @@ const MapWithNoSSR = dynamic(
 )
 
 const UploadAudio = props => {
-  const { currentUser } = useAuthContext()
-  if (!currentUser) {
-    Router.push('/')
-  }
+  // const { currentUser } = useAuthContext()
+  // if (!currentUser) {
+  //   Router.push('/')
+  // }
 
   //Map coords
   const [position, setPosition] = useState({ lat: '', lng: '' })
@@ -89,7 +89,7 @@ const UploadAudio = props => {
 
   return (
     <div>
-      {currentUser && (
+      {/* {currentUser && ( */}
         <Grid container justifyContent='center' spacing={2}>
           <GeneralSnackbars
             openSuccess={openSuccess}
@@ -116,7 +116,7 @@ const UploadAudio = props => {
             <Formik
               initialValues={{
                 ...initialValues,
-                user: currentUser
+                user: ''
               }}
               onSubmit={submitForm}
               validationSchema={validationSchema}
@@ -176,7 +176,7 @@ const UploadAudio = props => {
             />
           </Grid>
         </Grid>
-      )}
+      {/* )} */}
       {loading && (
         <Backdrop
           className='backdrop'
