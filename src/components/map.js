@@ -1,4 +1,10 @@
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet'
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  useMapEvents,
+  useMap
+} from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css'
 import 'leaflet-defaulticon-compatibility'
@@ -14,6 +20,32 @@ const MapEvents = ({ onClick, setPosition }) => {
   return null
 }
 
+const GeoLocation = ({ position }) => {
+  const [location, setLocation] = useState({ lat: '', lng: '' })
+  const map = useMap()
+
+  useEffect(() => {
+    map
+      .locate()
+      .on('locationfound', function (e) {
+        map.panTo(e.latlng, 13)
+        setLocation(e.latlng)
+      })
+      .on('locationerror', function (e) {
+        if ('geolocation' in navigator) {
+          navigator.geolocation.getCurrentPosition(function (location) {
+            var latitude = location.coords.latitude
+            var longitude = location.coords.longitude
+            map.panTo([latitude, longitude])
+            setLocation([latitude, longitude])
+          })
+        }
+      })
+  }, [])
+  var currentLocation = position.lat ? position : location
+  return <Marker position={currentLocation}></Marker>
+}
+
 function getHeight (windowWidth) {
   var height
   if (windowWidth > 960) height = '750px'
@@ -22,21 +54,8 @@ function getHeight (windowWidth) {
 }
 
 const Map = ({ onClick }) => {
-  const [map, setMap] = useState()
   const [position, setPosition] = useState({ lat: '', lng: '' })
   const windowWidth = window.innerWidth
-
-  useEffect(() => {
-    if ('geolocation' in navigator && map) {
-      navigator.geolocation.getCurrentPosition(function (location) {
-        var latitude = location.coords.latitude
-        var longitude = location.coords.longitude
-        var coords = { lat: latitude, lng: longitude }
-        map.panTo([latitude, longitude])
-        setPosition(coords)
-      })
-    }
-  }, [map])
 
   return (
     <div>
@@ -46,11 +65,10 @@ const Map = ({ onClick }) => {
         zoom={13}
         scrollWheelZoom={true}
         style={{ height: getHeight(windowWidth), width: '100%' }}
-        whenCreated={setMap}
       >
         <MapEvents onClick={onClick} setPosition={setPosition} />
-        <TileLayer url='https://api.mapbox.com/styles/v1/mvernier/ckp75i4sw396418n6gbb4psz0/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoibXZlcm5pZXIiLCJhIjoiY2twNzRxeTJzMDQycTJvbzA5N2NyN283biJ9.nMykNl6xWvMe8MV8DLH-ig' />
-        {position && <Marker position={position}></Marker>}
+        <TileLayer url='https://api.mapbox.com/styles/v1/vitocox18/ckvr7h9nz10dm14p2s8pe1h40/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1Ijoidml0b2NveDE4IiwiYSI6ImNqOXI2cWlxZjY3YnUzMm1xNDIzYWhiNjgifQ.bQfM090UwQ5RRSFqunVhjQ' />
+        <GeoLocation position={position} />
       </MapContainer>
     </div>
   )
