@@ -128,6 +128,7 @@ const UploadAudio = props => {
                       <FileInput name='data' />
                     </Grid>
                     <NameInput name='name' label='Nombre de audio' />
+                    <NameInput name='username' label='Nombre de usuario' />
                     <SelectInput
                       name='recording_device'
                       label='Dispositivo de grabación'

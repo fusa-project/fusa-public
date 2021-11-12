@@ -54,7 +54,7 @@ function getHeight (windowWidth) {
 }
 
 const Map = ({ onClick }) => {
-  const [position, setPosition] = useState({ lat: '', lng: '' })
+  const [position, setPosition] = useState({ lat: -39.8139, lng: -73.2458 })
   const windowWidth = window.innerWidth
 
   return (

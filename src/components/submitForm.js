@@ -3,10 +3,11 @@ import moment from 'moment'
 
 const handleSubmit = async (data, actions) => {
   //var user_mail = data.user.email
-  var user_mail = 'test@fusa.cl'
+  //var user_mail = 'test@fusa.cl'
+  var username = data.username
   var user = {
     category: 'citizen',
-    username: user_mail
+    username: username
   }
 
   var upload_timestamp = moment().unix()
@@ -14,7 +15,7 @@ const handleSubmit = async (data, actions) => {
   if (data.tags) {
     var tags = [
       {
-        username: user_mail,
+        username: username,
         version: '',
         timestamp: upload_timestamp,
         source_tags: data.tags

@@ -3,6 +3,7 @@ import moment from 'moment'
 
 export const initialValues = {
   name: '',
+  username: '',
   description: '',
   tags: [],
   latitude: '',
@@ -16,6 +17,7 @@ export const initialValues = {
 
 export const validationSchema = Yup.object({
   name: Yup.string().required('Ingrese el nombre del audio'),
+  username: Yup.string().required('Ingrese el nombre de usuario'),
   description: Yup.string(),
   tags: Yup.array(),
   latitude: Yup.string().required('Seleccione un punto en el mapa'),
