@@ -19,6 +19,7 @@ import InstructionsDialogButton from '@components/instructionsDialogButton'
 import handleSubmit from '@components/submitForm'
 import { initialValues, validationSchema } from '@components/formData'
 import GeneralSnackbars from '@components/generalSnackbars'
+import ClassificationDialog from '@components/classificationDialog'
 
 const MapWithNoSSR = dynamic(
   () => {
@@ -76,11 +77,17 @@ const UploadAudio = props => {
   //Submit
   const submitButtonRef = useRef()
 
+  const [modelOutput, setModelOutput] = useState({})
   const submitForm = (data, actions) => {
     setLoading(true)
     handleSubmit(data, actions).then(res => {
-      if (res.status == 200) setOpenSuccess(true)
-      else setOpenFailed(true)
+      if (res.status == 200) {
+        setOpenSuccess(true)
+        var model_tags = res.data.data.tags[1].source_tags
+        model_tags.map((tag, i) => {
+          setModelOutput(tag)
+        })
+      } else setOpenFailed(true)
       setLoading(false)
     })
   }
@@ -90,93 +97,98 @@ const UploadAudio = props => {
   return (
     <div>
       {/* {currentUser && ( */}
-        <Grid container justifyContent='center' spacing={2}>
-          <GeneralSnackbars
-            openSuccess={openSuccess}
-            handleCloseSuccess={handleCloseSuccess}
-            openFailed={openFailed}
-            handleCloseFailed={handleCloseFailed}
-          />
-          <Grid item xs={12}>
-            <Head>
-              <title>Subida de Audio</title>
-              <link rel='icon' href='/favicon.ico' />
-            </Head>
-            <Grid container justifyContent='center'>
-              <Title label={'Formulario de subida de audio'} />
-              <InstructionsDialogButton />
-            </Grid>
-          </Grid>
-          <Grid item xs={12} sm={12} md={6}>
-            <Flex flexDirection='column' justifyContent='center'>
-              <MapWithNoSSR onClick={MapCoords} />
-            </Flex>
-          </Grid>
-          <Grid item xs={12} sm={12} md={6}>
-            <Formik
-              initialValues={{
-                ...initialValues,
-                user: ''
-              }}
-              onSubmit={submitForm}
-              validationSchema={validationSchema}
-            >
-              {({ isSubmitting, isValid }) => (
-                <Stack alignItems='left' spacing='10px'>
-                  <Form>
-                    <Grid container justifyContent='center'>
-                      <FileInput name='data' />
-                    </Grid>
-                    <NameInput name='name' label='Nombre de audio' />
-                    <NameInput name='username' label='Nombre de usuario' />
-                    <SelectInput
-                      name='recording_device'
-                      label='Dispositivo de grabación'
-                    />
-                    <Grid container>
-                      <Grid item sm={6} xs={6}>
-                        <CoordsInput
-                          name='latitude'
-                          label='Latitud'
-                          values={position.lat}
-                        />
-                      </Grid>
-                      <Grid item sm={6} xs={6}>
-                        <CoordsInput
-                          name='longitude'
-                          label='Longitud'
-                          values={position.lng}
-                        />
-                      </Grid>
-                    </Grid>
-                    <Field type='hidden' name='file' />
-                    <Field type='hidden' name='user' />
-                    <Field type='hidden' name='audio_duration' />
-                    <DateInput
-                      name='recorded_at'
-                      label='Fecha/hora de grabación'
-                    />
-                    <CheckboxInput name='tags' label='Categorías' />
-                    <DescriptionInput name='description' label='Descripción' />
-                    <button
-                      type='submit'
-                      style={{ display: 'none' }}
-                      ref={submitButtonRef}
-                    />
-                  </Form>
-                </Stack>
-              )}
-            </Formik>
-          </Grid>
-          <Grid item xs={12}>
-            <SubmitButton
-              disabled={loading}
-              onClick={() => {
-                submitButtonRef.current.click()
-              }}
-            />
+      <Grid container justifyContent='center' spacing={2}>
+        <GeneralSnackbars
+          openSuccess={openSuccess}
+          handleCloseSuccess={handleCloseSuccess}
+          openFailed={openFailed}
+          handleCloseFailed={handleCloseFailed}
+        />
+        <ClassificationDialog
+          openSuccess={openSuccess}
+          handleCloseSuccess={handleCloseSuccess}
+          modelOutput={modelOutput}
+        />
+        <Grid item xs={12}>
+          <Head>
+            <title>Subida de Audio</title>
+            <link rel='icon' href='/favicon.ico' />
+          </Head>
+          <Grid container justifyContent='center'>
+            <Title label={'Formulario de subida de audio'} />
+            <InstructionsDialogButton />
           </Grid>
         </Grid>
+        <Grid item xs={12} sm={12} md={6}>
+          <Flex flexDirection='column' justifyContent='center'>
+            <MapWithNoSSR onClick={MapCoords} />
+          </Flex>
+        </Grid>
+        <Grid item xs={12} sm={12} md={6}>
+          <Formik
+            initialValues={{
+              ...initialValues,
+              user: ''
+            }}
+            onSubmit={submitForm}
+            validationSchema={validationSchema}
+          >
+            {({ isSubmitting, isValid }) => (
+              <Stack alignItems='left' spacing='10px'>
+                <Form>
+                  <Grid container justifyContent='center'>
+                    <FileInput name='data' />
+                  </Grid>
+                  <NameInput name='name' label='Nombre de audio' />
+                  <NameInput name='username' label='Nombre de usuario' />
+                  <SelectInput
+                    name='recording_device'
+                    label='Dispositivo de grabación'
+                  />
+                  <Grid container>
+                    <Grid item sm={6} xs={6}>
+                      <CoordsInput
+                        name='latitude'
+                        label='Latitud'
+                        values={position.lat}
+                      />
+                    </Grid>
+                    <Grid item sm={6} xs={6}>
+                      <CoordsInput
+                        name='longitude'
+                        label='Longitud'
+                        values={position.lng}
+                      />
+                    </Grid>
+                  </Grid>
+                  <Field type='hidden' name='file' />
+                  <Field type='hidden' name='user' />
+                  <Field type='hidden' name='audio_duration' />
+                  <DateInput
+                    name='recorded_at'
+                    label='Fecha/hora de grabación'
+                  />
+                  <CheckboxInput name='tags' label='Categorías' />
+                  <DescriptionInput name='description' label='Descripción' />
+                  <button
+                    type='submit'
+                    style={{ display: 'none' }}
+                    ref={submitButtonRef}
+                  />
+                </Form>
+              </Stack>
+            )}
+          </Formik>
+        </Grid>
+        <Grid item xs={12}>
+          <SubmitButton
+            disabled={loading}
+            onClick={() => {
+              submitButtonRef.current.click()
+            }}
+          />
+        </Grid>
+      </Grid>
       {/* )} */}
       {loading && (
         <Backdrop
