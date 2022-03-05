@@ -3,7 +3,6 @@ version: '3.4'
 
 services:
   fusa_explore:
-    image: mariadb:10.1.48
     ports:
       - "3000:3000"
     container_name: fusa_explore
