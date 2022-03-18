@@ -1,9 +1,21 @@
 version: '3.4'
 
+networks:
+  nginx-proxy:
+    external: true
+  default:
+    external:
+      name: public_network
+
 
 services:
-  fusa_explore:
+  fusa_public:
     ports:
       - "3000:3000"
-    container_name: fusa_explore
+    container_name: fusa_public
     build: .
+
+    networks:
+      default:
+        ipv4_address: 100.100.0.10
+      nginx-proxy: null
