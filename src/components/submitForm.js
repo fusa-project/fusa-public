@@ -14,20 +14,20 @@ const handleSubmit = async (data, actions) => {
 
   if (data.tags) {
     for (let category of data.tags) {
-      category.push(
+      categories.push(
         {
           category_name: category,
           probability: 1.0,
         }
       )
     }
-    var tags =
+    var tags = [
     {
       username: user_mail,
       version: '',
       timestamp: upload_timestamp,
       categories: categories
-    }
+    }]
   } else {
     var tags = []
   }
