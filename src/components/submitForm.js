@@ -10,15 +10,24 @@ const handleSubmit = async (data, actions) => {
 
   var upload_timestamp = moment().unix()
 
+  var categories = []
+
   if (data.tags) {
-    var tags = [
-      {
-        username: user_mail,
-        version: '',
-        timestamp: upload_timestamp,
-        source_tags: data.tags
-      }
-    ]
+    for (let category of data.tags) {
+      category.push(
+        {
+          category_name: category,
+          probability: 1.0,
+        }
+      )
+    }
+    var tags =
+    {
+      username: user_mail,
+      version: '',
+      timestamp: upload_timestamp,
+      categories: categories
+    }
   } else {
     var tags = []
   }
