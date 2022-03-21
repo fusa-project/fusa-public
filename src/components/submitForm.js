@@ -50,7 +50,7 @@ const handleSubmit = async (data, actions) => {
 
   return new Promise((resolve, reject) => {
     client
-      .post('/audios', full_data)
+      .post('/audios?classification=true', full_data)
       .then(function (res) {
         if (res.status == 200) {
           actions.resetForm()
