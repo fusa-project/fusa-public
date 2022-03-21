@@ -19,6 +19,7 @@ import InstructionsDialogButton from '@components/instructionsDialogButton'
 import handleSubmit from '@components/submitForm'
 import { initialValues, validationSchema } from '@components/formData'
 import GeneralSnackbars from '@components/generalSnackbars'
+import ClassificationDialog from '@components/classificationDialog'
 
 const MapWithNoSSR = dynamic(
   () => {
@@ -76,11 +77,17 @@ const UploadAudio = props => {
   //Submit
   const submitButtonRef = useRef()
 
+  const [modelOutput, setModelOutput] = useState({})
   const submitForm = (data, actions) => {
     setLoading(true)
     handleSubmit(data, actions).then(res => {
-      if (res.status == 200) setOpenSuccess(true)
-      else setOpenFailed(true)
+      if (res.status == 200) {
+        setOpenSuccess(true)
+        var model_tags = res.data.data.tags[1].categories
+        model_tags.map((tag, i) => {
+          setModelOutput(tag)
+        })
+      } else setOpenFailed(true)
       setLoading(false)
     })
   }
@@ -96,6 +103,11 @@ const UploadAudio = props => {
             handleCloseSuccess={handleCloseSuccess}
             openFailed={openFailed}
             handleCloseFailed={handleCloseFailed}
+          />
+          <ClassificationDialog
+            openSuccess={openSuccess}
+            handleCloseSuccess={handleCloseSuccess}
+            modelOutput={modelOutput}
           />
           <Grid item xs={12}>
             <Head>
