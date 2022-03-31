@@ -119,6 +119,11 @@ const CheckboxInput = ({ label, ...props }) => {
         <Button variant='contained' component='span' onClick={handleOpenTags}>
           Seleccionar fuentes sonoras
         </Button>
+      {checkedTags.length > 0 &&
+        <div>
+            <p style={{wordWrap: 'break-word'}}>Seleccionadas: {checkedTags.join(',')}</p>
+        </div>
+      }
       </Card>
 
       <TagsDialog
@@ -134,3 +139,4 @@ const CheckboxInput = ({ label, ...props }) => {
 }
 
 export default CheckboxInput
+
