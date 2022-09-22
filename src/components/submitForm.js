@@ -31,7 +31,6 @@ const handleSubmit = async (data, actions) => {
   } else {
     var tags = []
   }
-
   var full_data = {
     name: data.name,
     description: data.description,
@@ -47,7 +46,6 @@ const handleSubmit = async (data, actions) => {
     user: user,
     tags: tags
   }
-
   return new Promise((resolve, reject) => {
     client
       .post('/audios?classification=true', full_data)
@@ -60,6 +58,7 @@ const handleSubmit = async (data, actions) => {
         resolve(res)
       })
       .catch(function (error) {
+	console.log(error)
         resolve(error)
       })
   })
