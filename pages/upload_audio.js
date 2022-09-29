@@ -54,7 +54,7 @@ const UploadAudio = props => {
   const [openSuccess, setOpenSuccess] = useState(false)
   const [openFailed, setOpenFailed] = useState(false)
   const handleCloseSuccess = (event, reason) => {
-    if (reason === 'clickaway') {
+    if (reason === 'clickaway' || reason === 'timeout') {
       return
     }
     setOpenSuccess(false)
