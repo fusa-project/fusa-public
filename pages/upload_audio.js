@@ -4,7 +4,6 @@ import { Formik, Form, Field } from 'formik'
 import { Grid, Backdrop, CircularProgress } from '@material-ui/core'
 import Head from 'next/head'
 import Router from 'next/router'
-import { useAuthContext } from '@context/auth'
 import dynamic from 'next/dynamic'
 import Title from '@components/title'
 import SubmitButton from '@components/submitButton'
@@ -31,10 +30,6 @@ const MapWithNoSSR = dynamic(
 )
 
 const UploadAudio = props => {
-  const { currentUser } = useAuthContext()
-  if (!currentUser) {
-    Router.push('/')
-  }
 
   //Map coords
   const [position, setPosition] = useState({ lat: '', lng: '' })
@@ -96,7 +91,6 @@ const UploadAudio = props => {
 
   return (
     <div>
-      {currentUser && (
         <Grid container justifyContent='center' spacing={2}>
           <GeneralSnackbars
             openSuccess={openSuccess}
@@ -127,8 +121,7 @@ const UploadAudio = props => {
           <Grid item xs={12} sm={12} md={6}>
             <Formik
               initialValues={{
-                ...initialValues,
-                user: currentUser
+                ...initialValues
               }}
               onSubmit={submitForm}
               validationSchema={validationSchema}
@@ -188,7 +181,6 @@ const UploadAudio = props => {
             />
           </Grid>
         </Grid>
-      )}
       {loading && (
         <Backdrop
           className='backdrop'
