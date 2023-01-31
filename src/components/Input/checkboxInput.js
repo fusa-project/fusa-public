@@ -11,7 +11,7 @@ import {
   Button
 } from '@material-ui/core'
 import { useState, forwardRef, useEffect } from 'react'
-import { taxonomyOptions } from '@data/taxonomy'
+import { taxonomyOptions } from '@data/fusa_taxonomy'
 
 const Transition = forwardRef(function Transition (props, ref) {
   return <Slide direction='up' ref={ref} {...props} />

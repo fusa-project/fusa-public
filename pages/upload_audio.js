@@ -76,12 +76,11 @@ const UploadAudio = props => {
   const submitForm = (data, actions) => {
     setLoading(true)
     handleSubmit(data, actions).then(res => {
-      if (res.status == 200) {
+      if (res.status == 200 && res.data.data.labels[1].categories.code != 503) {
         setOpenSuccess(true)
-        var model_tags = res.data.data.tags[1].categories
-        model_tags.map((tag, i) => {
-          setModelOutput(tag)
-        })
+        var model_labels = res.data.data.labels[1].categories
+	var audio_duration = res.data.data.duration
+	setModelOutput([model_labels, audio_duration])
       } else setOpenFailed(true)
       setLoading(false)
     })
@@ -98,11 +97,11 @@ const UploadAudio = props => {
             openFailed={openFailed}
             handleCloseFailed={handleCloseFailed}
           />
-          <ClassificationDialog
-            openSuccess={openSuccess}
-            handleCloseSuccess={handleCloseSuccess}
-            modelOutput={modelOutput}
-          />
+	  <ClassificationDialog
+	    openSuccess={openSuccess}
+	    handleCloseSuccess={handleCloseSuccess}
+	    modelOutput={modelOutput}
+	  />
           <Grid item xs={12}>
             <Head>
               <title>Subida de Audio</title>

@@ -146,6 +146,10 @@ code {
     color: white !important;
 }
 
+.canvasjs-chart-credit {
+    display: none !important;
+}
+
 @media (max-width: 600px) {
     .grid {
     width: 100%;

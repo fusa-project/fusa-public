@@ -11,9 +11,8 @@ const handleSubmit = async (data, actions) => {
   var upload_timestamp = moment().unix()
 
   var categories = []
-
-  if (data.tags) {
-    for (let category of data.tags) {
+  if (data.labels) {
+    for (let category of data.labels) {
       categories.push(
         {
           category_name: category,
@@ -21,7 +20,7 @@ const handleSubmit = async (data, actions) => {
         }
       )
     }
-    var tags = [
+    var labels = [
     {
       username: user_mail,
       version: '',
@@ -29,7 +28,7 @@ const handleSubmit = async (data, actions) => {
       categories: categories
     }]
   } else {
-    var tags = []
+    var labels = []
   }
   var full_data = {
     name: data.name,
@@ -44,7 +43,7 @@ const handleSubmit = async (data, actions) => {
     data: data.data,
     recording_device: data.recording_device,
     user: user,
-    tags: tags
+    labels: labels
   }
   return new Promise((resolve, reject) => {
     client
