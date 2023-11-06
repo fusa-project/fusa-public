@@ -11,7 +11,8 @@ networks:
 services:
   fusa_public:
     ports:
-      - "3000:3000"
+      - 3000:3000
+      - 9229:9229
     container_name: fusa_public
     build: .
 
@@ -19,3 +20,16 @@ services:
       default:
         ipv4_address: 100.100.0.10
       nginx-proxy: null
+
+    environment:
+      - CHOKIDAR_USEPOLLING=true # create-ui-app <= 5.x
+      - WATCHPACK_POLLING=true # create-ui-app >= 5.x
+      - FAST_REFRESH=false
+      - WDS_SOCKET_PORT=30000 # The mapped port on your host machine
+
+
+    volumes:
+      - ./src:/usr/src/app/src/
+      - ./pages:/usr/src/app/pages/
+      - ./public:/usr/src/app/public/
+
