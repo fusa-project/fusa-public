@@ -5,7 +5,11 @@ const Card = ({ children }) => {
     <Box
       style={{
         padding: '1rem',
-        transition: 'color 0.15s ease, border-color 0.15s ease'
+        transition: 'color 0.15s ease, border-color 0.15s ease',
+        margin: 'auto',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
       }}
     >
       {children}
