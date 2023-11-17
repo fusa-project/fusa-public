@@ -21,30 +21,28 @@ const handleSubmit = async (data, actions) => {
       )
     }
     var labels = [
-    {
-      username: user_mail,
-      version: '',
-      timestamp: upload_timestamp,
-      categories: categories
-    }]
+      {
+        username: user_mail,
+        version: '',
+        timestamp: upload_timestamp,
+        categories: categories
+      }]
   } else {
     var labels = []
   }
   var full_data = {
     name: data.name,
     description: data.description,
-    format: data.file.type,
-    size: data.file.size,
-    duration: data.audio_duration,
+    audio: data.audio,
     recorded_at: moment(data.recorded_at).unix(),
     uploaded_at: upload_timestamp,
     latitude: data.latitude,
     longitude: data.longitude,
-    data: data.data,
     recording_device: data.recording_device,
     user: user,
     labels: labels
   }
+
   return new Promise((resolve, reject) => {
     client
       .post('/audios?classification=true', full_data)
@@ -52,12 +50,12 @@ const handleSubmit = async (data, actions) => {
         if (res.status == 200) {
           actions.resetForm()
           actions.setSubmitting(false)
-          document.getElementById('audioFile').value = ''
+          document.getElementById('audio.data').value = ''
         }
         resolve(res)
       })
       .catch(function (error) {
-	console.log(error)
+        console.log(error)
         resolve(error)
       })
   })
