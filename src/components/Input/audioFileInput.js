@@ -1,11 +1,11 @@
-import FileSnackbars from '@components/fileSnackbars'
+import AudioFileSnackbar from '@components/audioFileSnackbar'
 import styled from 'styled-components'
 import { useField, useFormikContext } from 'formik'
 import Card from '@components/card'
 import AudioPlayer from '@components/Input/audioPlayer'
 import GraphicEqRoundedIcon from '@material-ui/icons/GraphicEqRounded'
 import { Button } from '@material-ui/core'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef } from 'react'
 
 const MyFileInput = styled.input`
   display: none;
@@ -16,30 +16,31 @@ const ErrorMessage = styled.div`
 const inputAudio = (
   event,
   setAudio,
-  setFile,
   setOpenLongWarn,
   setOpenFormatWarn,
   formContext,
   audioRef
 ) => {
   if (event.target.files && event.target.files[0]) {
-    const i = event.target.files[0]
-    var file_type = i.type.split('/')[0]
+    const selectedFile = event.target.files[0]
+    var file_type = selectedFile.type.split('/')[0]
+
     if (file_type == 'audio') {
       var reader = new FileReader()
-      reader.readAsDataURL(i)
-      const audio_object = URL.createObjectURL(i)
+      reader.readAsDataURL(selectedFile)
+      const audio_object = URL.createObjectURL(selectedFile)
       reader.onload = function (e) {
         var media = new Audio(reader.result)
         media.onloadedmetadata = function () {
           var audio_duration = media.duration
-          if (audio_duration <= 60) {
-            formContext.setFieldValue('name', i.name)
-            formContext.setFieldValue('data', e.target.result)
-            formContext.setFieldValue('file', i)
-            formContext.setFieldValue('audio_duration', audio_duration)
+
+          if (audio_duration >= 10 && audio_duration <= 60) {
+            formContext.setFieldValue('name', selectedFile.name)
+            formContext.setFieldValue('audio.data', e.target.result)
+            formContext.setFieldValue('audio.size', selectedFile.size)
+            formContext.setFieldValue('audio.format', selectedFile.type)
+            formContext.setFieldValue('audio.duration', audio_duration)
             setAudio(audio_object)
-            setFile(i)
             if (audioRef.current) {
               audioRef.current.pause()
               audioRef.current.load()
@@ -55,21 +56,13 @@ const inputAudio = (
   }
 }
 
-const FileInput = ({ label, ...props }) => {
+const AudioFileInput = ({ label, ...props }) => {
   const formContext = useFormikContext()
-  const [file, setFile] = useState()
   const [audio, setAudio] = useState()
-  const [field, meta] = useField(props)
+  const [field] = useField(props)
   const [openLongWarn, setOpenLongWarn] = useState(false)
   const [openFormatWarn, setOpenFormatWarn] = useState(false)
   const audioRef = useRef()
-
-  useEffect(() => {
-    if (formContext.isSubmitting) {
-      setAudio()
-      setFile()
-    }
-  }, [formContext.isSubmitting])
 
   const handleCloseLongWarn = (event, reason) => {
     if (reason === 'clickaway') {
@@ -86,18 +79,18 @@ const FileInput = ({ label, ...props }) => {
 
   return (
     <div>
-      <FileSnackbars
+      <AudioFileSnackbar
         openLongWarn={openLongWarn}
         handleCloseLongWarn={handleCloseLongWarn}
         openFormatWarn={openFormatWarn}
         handleCloseFormatWarn={handleCloseFormatWarn}
       />
       <Card>
-        <label htmlFor='audioFile'>
+        <label htmlFor='audio.data'>
           <MyFileInput
             {...field}
             {...props}
-            id='audioFile'
+            id='audio.data'
             type='file'
             accept='audio/*'
             value={undefined}
@@ -105,7 +98,6 @@ const FileInput = ({ label, ...props }) => {
               inputAudio(
                 event,
                 setAudio,
-                setFile,
                 setOpenLongWarn,
                 setOpenFormatWarn,
                 formContext,
@@ -118,27 +110,20 @@ const FileInput = ({ label, ...props }) => {
             component='span'
             startIcon={<GraphicEqRoundedIcon />}
           >
-            Subir archivo
+            Subir audio
           </Button>
         </label>
       </Card>
+
       <div>
-        {file && (
-          <p style={{ textAlign: 'center', marginBottom: -20 }}>
-            <b>Archivo: </b> {file.name}{' '}
-          </p>
-        )}
         {audio && (
           <Card>
             <AudioPlayer audio={audio} audioRef={audioRef} />
           </Card>
         )}
       </div>
-      {meta.touched && meta.error ? (
-        <ErrorMessage>{meta.error}</ErrorMessage>
-      ) : null}
     </div>
   )
 }
 
-export default FileInput
+export default AudioFileInput
