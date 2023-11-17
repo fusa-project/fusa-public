@@ -66,6 +66,14 @@ export const alertOptions = [
     { value: 'otras_alertas', label: 'Otros', color: alertColor }
 ]
 
+export const carRoadsOptions = [
+    { value: 'Motocicletas', label: 'Motocicletas', color: carColor },
+    { value: 'Vehículos livianos', label: 'Vehículos livianos', color: carColor },
+    { value: 'Vehículos de medio-peso', label: 'Vehículos de medio-peso (2 ejes)', color: carColor },
+    { value: 'Vehículos pesados', label: 'Vehículos pesados (3 o más ejes)', color: carColor },
+    { value: 'Autobuses', label: 'Autobuses', color: carColor }
+]
+
 export const taxonomyOptions = [
     {
         label: 'Humanos',
@@ -95,6 +103,13 @@ export const taxonomyOptions = [
         label: 'Alertas',
         options: alertOptions
     }
+]
+
+export const taxonomyRoadsOptions = [
+    {
+        label: 'Tipo de vehículo',
+        options: carRoadsOptions
+    },
 ]
 
 export const fusa_taxonomy = {
@@ -643,3 +658,4 @@ export const fusa_taxonomy = {
         Singapura: ['Reverse beeper', 'Alert signal (other)']
     }
 }
+
