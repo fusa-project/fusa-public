@@ -22,10 +22,18 @@ const Home = () => {
 	        </p>
               	<Link href="upload_audio">
                   <a className="card">
-                  <h3>Añadir Datos  &rarr;</h3>
+                  <h3>FuSA &rarr;</h3>
                   <p>Añadir sus grabaciones audios.</p>
                   </a>
               	</Link>
+                {/* 
+              	<Link href="fusa_roads">
+                  <a className="card">
+                  <h3>FuSA-ROADS  &rarr;</h3>
+                  <p>Añadir audio y video.</p>
+                  </a>
+              	</Link>
+                 */}
               </div>
           </main>
 

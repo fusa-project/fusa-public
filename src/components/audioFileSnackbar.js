@@ -1,6 +1,6 @@
 import AlertSnackBar from '@components/alertSnackbar'
 
-const FileSnackbars = ({
+const AudioFileSnackbars = ({
   openLongWarn,
   handleCloseLongWarn,
   openFormatWarn,
@@ -13,7 +13,7 @@ const FileSnackbars = ({
         handleClose={handleCloseFormatWarn}
         type={'warning'}
         alertMessage={
-          'Formato de archivo inválido, debe ser un archivo de audio. Formatos válidos: WAV - MP3 - AIFF'
+          'Formato de audio inválido. Formatos válidos: WAV - MP3 - AIFF'
         }
       />
       <AlertSnackBar
@@ -21,11 +21,11 @@ const FileSnackbars = ({
         handleClose={handleCloseLongWarn}
         type={'warning'}
         alertMessage={
-          'Archivo de audio demasiado largo. La duración máxima es de 60 segundos.'
+          'El audio debe durar entre 10 y 60 segundos.'
         }
       />
     </div>
   )
 }
 
-export default FileSnackbars
+export default AudioFileSnackbars

@@ -9,13 +9,14 @@ import SubmitButton from '@components/submitButton'
 import NameInput from '@components/Input/nameInput'
 import DescriptionInput from '@components/Input/descriptionInput'
 import CoordsInput from '@components/Input/coordsInput'
-import SelectInput from '@components/Input/selectInput'
+import SwitchInput from '@components/Input/switchInput'
 import AudioFileInput from '@components/Input/audioFileInput'
+import VideoFileInput from '@components/Input/videoFileInput'
 import DateInput from '@components/Input/dateInput'
-import CheckboxInput from '@components/Input/checkboxInput'
+import CheckboxRoadsInput from '@components/Input/checkboxRoadsInput'
 import InstructionsDialogButton from '@components/instructionsDialogButton'
-import handleSubmit from '@components/submitForm'
-import { initialValues, validationSchema } from '@components/formData'
+import handleRoadsSubmit from '@components/submitRoadsForm'
+import { initialRoadsValues, validationRoadsSchema } from '@components/formData'
 import GeneralSnackbars from '@components/generalSnackbars'
 import ClassificationDialog from '@components/classificationDialog'
 
@@ -28,7 +29,7 @@ const MapWithNoSSR = dynamic(
   }
 )
 
-const UploadAudio = props => {
+const FusaRoads = props => {
 
   //Map coords
   const [position, setPosition] = useState({ lat: '', lng: '' })
@@ -74,13 +75,15 @@ const UploadAudio = props => {
   const [modelOutput, setModelOutput] = useState({})
   const submitForm = (data, actions) => {
     setLoading(true)
-    handleSubmit(data, actions).then(res => {
+    handleRoadsSubmit(data, actions).then(res => {
+      /*
       if (res.status == 200 && res.data.data.labels[1].categories.code != 503) {
         setOpenSuccess(true)
         var model_labels = res.data.data.labels[1].categories
         var audio_duration = res.data.data.duration
         setModelOutput([model_labels, audio_duration])
       } else setOpenFailed(true)
+      */
       setLoading(false)
     })
   }
@@ -103,11 +106,11 @@ const UploadAudio = props => {
         />
         <Grid item xs={12}>
           <Head>
-            <title>Subida de Audio</title>
+            <title>FuSA ROADS</title>
             <link rel='icon' href='/favicon.ico' />
           </Head>
           <Grid container justifyContent='center'>
-            <Title label={'Formulario de subida de audio'} />
+            <Title label={'FuSA ROADS'} />
             <InstructionsDialogButton />
           </Grid>
         </Grid>
@@ -119,30 +122,44 @@ const UploadAudio = props => {
         <Grid item xs={12} sm={12} md={6}>
           <Formik
             initialValues={{
-              ...initialValues
+              ...initialRoadsValues
             }}
             onSubmit={submitForm}
-            validationSchema={validationSchema}
+            validationSchema={validationRoadsSchema}
           >
             {({ isSubmitting, isValid }) => (
               <Stack alignItems='left' spacing='10px'>
                 <Form>
-                  <Grid container justifyContent='center'>
-                    <AudioFileInput name='audio.data' />
-                  </Grid>
-                  <Grid container justifyContent='center'>
+                  <Grid container justifyContent='center' spacing={2}>
+                    <Grid item xs={6}>
+                      <Grid container justifyContent='center' alignItems='center'>
+                        <VideoFileInput name='video.data' />
+                      </Grid>
+                    </Grid>
+                    <Grid item xs={6}>
+                      <Grid container justifyContent='center' alignItems='center'>
+                        <AudioFileInput name='audio.data' />
+                      </Grid>
+                    </Grid>
                     <div style={{ "color": "#f00" }}>
                       <ErrorMessage name="audio.data" />
                     </div>
                   </Grid>
-                  <NameInput name='name' label='Nombre de audio' />
-                  <SelectInput
-                    name='recording_device'
-                    label='Dispositivo de grabación'
-                  />
+                  <NameInput name='name' label='Título' />
+                  <Grid container>
+                    <DateInput
+                      name='recorded_at'
+                      label='Fecha/hora de grabación'
+                    />
+                    <SwitchInput
+                      name='period'
+                      label='Período'
+                    />
+                  </Grid>
                   <Grid container>
                     <Grid item sm={6} xs={6}>
                       <CoordsInput
+                        type='hidden'
                         name='latitude'
                         label='Latitud'
                         values={position.lat}
@@ -150,17 +167,14 @@ const UploadAudio = props => {
                     </Grid>
                     <Grid item sm={6} xs={6}>
                       <CoordsInput
+                        type='hidden'
                         name='longitude'
                         label='Longitud'
                         values={position.lng}
                       />
                     </Grid>
                   </Grid>
-                  <DateInput
-                    name='recorded_at'
-                    label='Fecha/hora de grabación'
-                  />
-                  <CheckboxInput name='tags' label='Categorías' />
+                  <CheckboxRoadsInput name='tags' label='Categorías' />
                   <DescriptionInput name='description' label='Descripción' />
                   <button
                     type='submit'
@@ -194,4 +208,4 @@ const UploadAudio = props => {
   )
 }
 
-export default UploadAudio
+export default FusaRoads

@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { useField } from 'formik'
+import { useField, useFormikContext } from 'formik'
 import Card from '@components/card'
 import { InputLabel, TextField } from '@material-ui/core'
 
@@ -21,8 +21,27 @@ const ErrorMessage = styled.div`
   color: #f00;
 `
 
+function getPeriodByDate(dateTimeString) {
+  const date = new Date(dateTimeString);
+  const hours = date.getHours();
+
+  if (hours >= 7 && hours <= 22) {
+    return 'day';
+  } else {
+    return 'night';
+  }
+}
+
 const DateInput = ({ label, ...props }) => {
-  const [field, meta] = useField(props)
+  const formContext = useFormikContext()
+  const [field, meta, helpers] = useField(props)
+  const handleChange = (event) => {
+    helpers.setValue(event.target.value);
+    const indicator = getPeriodByDate(event.target.value);
+    formContext.setFieldValue('period', indicator);
+    console.log(indicator)
+  };
+
   return (
     <Card>
       <InputLabel shrink>{label}</InputLabel>
@@ -35,6 +54,7 @@ const DateInput = ({ label, ...props }) => {
           shrink: true
         }}
         variant='outlined'
+        onChange={handleChange}
       />
       {meta.touched && meta.error ? (
         <ErrorMessage>{meta.error}</ErrorMessage>

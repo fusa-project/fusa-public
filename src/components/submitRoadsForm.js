@@ -1,7 +1,7 @@
 import client from '@util/api'
 import moment from 'moment'
 
-const handleSubmit = async (data, actions) => {
+const handleRoadsSubmit = async (data, actions) => {
   var user_mail = 'labacam.fusa@gmail.com'
   var user = {
     category: 'citizen',
@@ -30,30 +30,36 @@ const handleSubmit = async (data, actions) => {
   } else {
     var labels = []
   }
-  var full_data = {
+
+  /*var data = {
     name: data.name,
     description: data.description,
-    format: data.audio.format,
-    data: data.audio.data,
-    size: data.audio.size,
-    duration: data.audio.duration,
+    audio: data.audio,
+    video: data.video,
     recorded_at: moment(data.recorded_at).unix(),
     uploaded_at: upload_timestamp,
     latitude: data.latitude,
     longitude: data.longitude,
-    recording_device: data.recording_device,
     user: user,
-    labels: labels
+    labels: labels,
+    period: data.period
+  }
+  */
+  var data = {
+    audio: data.audio,
+    video: data.video,
+    period: data.period
   }
 
   return new Promise((resolve, reject) => {
     client
-      .post('/audios?classification=true', full_data)
+      .post('/predictions/roads', data)
       .then(function (res) {
         if (res.status == 200) {
           actions.resetForm()
           actions.setSubmitting(false)
           document.getElementById('audio.data').value = ''
+          document.getElementById('video.data').value = ''
         }
         resolve(res)
       })
@@ -63,4 +69,4 @@ const handleSubmit = async (data, actions) => {
       })
   })
 }
-export default handleSubmit
+export default handleRoadsSubmit
