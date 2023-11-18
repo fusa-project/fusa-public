@@ -78,7 +78,7 @@ const UploadAudio = props => {
       if (res.status == 200 && res.data.data.labels[1].categories.code != 503) {
         setOpenSuccess(true)
         var model_labels = res.data.data.labels[1].categories
-        var audio_duration = res.data.data.audio.duration
+        var audio_duration = res.data.data.duration
         setModelOutput([model_labels, audio_duration])
       } else setOpenFailed(true)
       setLoading(false)

@@ -33,7 +33,10 @@ const handleSubmit = async (data, actions) => {
   var full_data = {
     name: data.name,
     description: data.description,
-    audio: data.audio,
+    format: data.audio.format,
+    data: data.audio.data,
+    size: data.audio.size,
+    duration: data.audio.duration,
     recorded_at: moment(data.recorded_at).unix(),
     uploaded_at: upload_timestamp,
     latitude: data.latitude,
